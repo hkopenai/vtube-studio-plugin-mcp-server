@@ -1,28 +1,35 @@
-# Progress: VTuber Plugin
+# Project Progress Report
 
-## What Works
-- **Memory Bank Setup**: The core documentation structure has been established with the creation of all required files (`projectbrief.md`, `productContext.md`, `activeContext.md`, `systemPatterns.md`, `techContext.md`, and `progress.md`), providing a solid foundation for project continuity.
-- **Project Structure**: The existing codebase in `src/` and `test/` directories offers a functional starting point with defined modules for tools, utilities, and testing.
-- **Code Analysis Completed**: Detailed review of key files (`mcp-server.ts`, `getLive2DParameters.ts`, `authenticate.ts`) has been conducted, confirming the plugin's integration with VTube Studio for Live2D parameter control via WebSocket and MCP protocol.
+## Overview
+This document tracks the ongoing development and testing progress for the VTube Studio Plugin project. It includes updates on feature implementation, testing enhancements, and integration with the VTube Studio API.
 
-## What's Left to Build
-- **Feature Development**: Implementation of additional tools or features for the VTuber Plugin, such as advanced Live2D parameter controls or broader integration with streaming platforms beyond VTube Studio.
-    - Tools
-        - Requesting current expression state list https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-current-expression-state-list
-        - Requesting activation or deactivation of expressions https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-activation-or-deactivation-of-expressions
-- **Testing Enhancements**: The test suite in 'end_to_end_test.js' has been further expanded to include additional edge case scenarios such as authentication failure, parameter retrieval with empty data, and unexpected WebSocket closure during parameter updates, enhancing the coverage of potential issues in the VTube Studio integration.
-- **User Documentation**: Creation of end-user guides and tutorials to support VTuber creators in using the plugin effectively, based on the analyzed functionality.
+## Recent Updates
 
-## Current Status
-- **Analysis Phase Complete**: The project has progressed from initialization to completing a detailed code analysis, with updated documentation in `activeContext.md` and `techContext.md` reflecting insights into VTube Studio integration and Live2D control.
-- **Documentation Updated**: Core memory bank files now include specific technical details from the codebase, enhancing the overview of project goals, technical setup, and system design.
+### Development Milestones
+- **Initial Setup**: Project scaffolding completed with necessary dependencies and configurations.
+- **Core Functionality**: Basic connection and authentication mechanisms with VTube Studio API implemented in `src/mcp-server.ts`.
+- **Parameter Retrieval**: Added functionality to fetch Live2D parameters using the API in `src/tools/getLive2DParameters.ts`.
 
-## Known Issues
-- **Untested Functionality**: While the code structure is understood, specific issues or bugs in the current implementation remain undocumented until a full test review is conducted.
-- **Incomplete User Feedback Loop**: Mechanisms to gather and incorporate user feedback for plugin improvements are not yet established, which could impact feature prioritization.
+### Testing Enhancements
+- **End-to-End Testing Suite Expansion**: The test suite has been expanded with 'end_to_end_test.js' to include full end-to-end user flow simulations. This covers:
+  - Connection to VTube Studio API.
+  - Authentication process.
+  - Parameter retrieval and updates.
+  - Handling edge cases such as network interruptions.
+- **Future Testing Focus**: Further enhancements could focus on additional edge cases and specific scenarios like model loading failures, hotkey execution errors, and parameter injection issues.
 
-## Evolution of Project Decisions
-- **Initial Focus on Documentation**: The decision to prioritize memory bank setup was made to address the challenge of memory resets, ensuring that all future work can build on a well-documented foundation.
-- **Modular Approach Confirmation**: Early analysis of the project structure reinforced the importance of a modular design, which will guide future development and documentation efforts.
+### API Integration Details
+- **VTube Studio API Documentation**: Comprehensive details fetched from the official GitHub repository (https://github.com/DenchiSoft/VTubeStudio). Key API functionalities relevant to testing include:
+  - **Authentication**: Token request and management for plugin access.
+  - **Hotkey Execution**: Triggering hotkeys for model control and testing user interactions.
+  - **Parameter Management**: Creating, deleting, and injecting custom parameters for testing model responses.
+  - **Model and Item Control**: Loading/unloading models and items, and controlling their properties for simulation of user scenarios.
+  - **Post-Processing Effects**: Testing visual effects and their impact on model rendering.
 
-This document integrates insights from all other memory bank files, providing a snapshot of the VTuber Plugin's progress and ongoing priorities.
+## Next Steps
+- **Enhance Edge Case Testing**: Develop test cases for less common scenarios and failure modes.
+- **Performance Testing**: Implement tests to measure API response times and plugin performance under load.
+- **User Feedback Integration**: Plan for incorporating user feedback into the testing cycle to address real-world usage issues.
+
+## Conclusion
+The project is progressing with a strong focus on robust testing to ensure reliability and functionality of the VTube Studio Plugin. Continuous updates to the test suite and integration with the API will be crucial for the success of this project.

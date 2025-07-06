@@ -21,6 +21,9 @@ The project has moved beyond initialization to a detailed code analysis phase. T
 ## Important Patterns and Preferences
 - **Documentation First**: Prioritize comprehensive documentation to ensure continuity after memory resets, following the memory bank structure.
 - **Modular Development**: Align with the project's goal of a modular architecture by organizing documentation to reflect modularity in tools and utilities.
+- Tool must follow api details in https://github.com/DenchiSoft/VTubeStudio . A local copy can be used VTubeStudio_README.md
+- Tool should provide parameter for `data` field in the Request
+- The tool simply return result to the caller and assume the respond as json
 
 ## Learnings and Project Insights
 - The importance of a well-structured memory bank cannot be overstated, as it directly impacts the ability to pick up work after a reset.
