@@ -33,18 +33,11 @@ export class MCPServer {
 
     private initializeTools(): void {
         // Register the tool for getting Live2D parameters, passing the WebSocket instance
-        const live2DParametersTool = {
-            ...getLive2DParameters,
-            execute: async () => {
-                return await getLive2DParameters.execute(this.ws);
-            }
-        };
-
         this.server.registerTool('getLive2DParameters', {
             title: 'Get Live2D Parameters',
             description: 'Retrieves Live2D parameters from VTube Studio'
         }, async (args, extra) => {
-            const result = await live2DParametersTool.execute();
+            const result = await getLive2DParameters.execute(this.ws);
             return {
                 content: [
                     {
