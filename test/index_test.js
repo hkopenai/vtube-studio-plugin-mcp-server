@@ -100,6 +100,21 @@ describe('VTube Studio MCP Server - Integration Tests', function() {
       resources: []
     };
     mcpServerInstance = new MCPServer(options);
+    // Manually register the mock tool to ensure it's available in server.tools with a handler
+    mcpServerInstance.server.registerTool('getLive2DParameters', {
+      title: 'Get Live2D Parameters',
+      description: 'Retrieves Live2D parameters from VTube Studio'
+    }, async (args, extra) => {
+      const result = await getLive2DParametersMock.execute(wsInstance, args);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+    });
   });
 
   afterEach(function() {

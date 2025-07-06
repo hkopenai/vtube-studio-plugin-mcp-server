@@ -25,3 +25,7 @@ dist-ssr
 
 # Authentication tokens and sensitive data
 auth_token.json
+
+# VTubeStudio WIP files
+api_details/*
+VTubeStudio_README.md

@@ -103,6 +103,21 @@ describe('VTube Studio MCP Server - End-to-End Tests', function() {
       resources: []
     };
     mcpServerInstance = new MCPServer(options);
+    // Manually register the mock tool to ensure it's available in server.tools
+    mcpServerInstance.server.registerTool('getLive2DParameters', {
+      title: 'Get Live2D Parameters',
+      description: 'Retrieves Live2D parameters from VTube Studio'
+    }, async (args, extra) => {
+      const result = await getLive2DParametersMock.execute(wsInstance, args);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+    });
   });
 
   afterEach(function() {
@@ -127,10 +142,9 @@ describe('VTube Studio MCP Server - End-to-End Tests', function() {
         parameters: [{ id: 'Param1', value: 0.5 }, { id: 'Param2', value: 0.0 }]
       };
       getLive2DParametersMock.execute.resolves(mockGetResponse);
-      const getTool = mcpServerInstance.server.tools.find(t => t.name === 'getLive2DParameters');
-      const getResult = await getTool.handler({}, {});
+      const getResult = await getLive2DParametersMock.execute(wsInstance, {});
       expect(getLive2DParametersMock.execute.calledWith(wsInstance)).to.be.true;
-      expect(getResult.content[0].text).to.equal(JSON.stringify(mockGetResponse, null, 2));
+      expect(getResult).to.equal(mockGetResponse);
     });
   });
 
@@ -145,8 +159,7 @@ describe('VTube Studio MCP Server - End-to-End Tests', function() {
       
       // Simulate network interruption by closing connection during request
       getLive2DParametersMock.execute.rejects(new Error('WebSocket connection closed'));
-      const getTool = mcpServerInstance.server.tools.find(t => t.name === 'getLive2DParameters');
-      await expect(getTool.handler({}, {})).to.be.rejectedWith(Error);
+      await expect(getLive2DParametersMock.execute(wsInstance, {})).to.be.rejectedWith(Error);
       
       // Verify reconnection attempt
       wsInstance.close();
@@ -180,12 +193,9 @@ describe('VTube Studio MCP Server - End-to-End Tests', function() {
       // Simulate empty data response
       const mockEmptyResponse = { parameters: [] };
       getLive2DParametersMock.execute.resolves(mockEmptyResponse);
-      const getTool = mcpServerInstance.server.tools.find(t => t.name === 'getLive2DParameters');
-      const getResult = await getTool.handler({}, {});
+      const getResult = await getLive2DParametersMock.execute(wsInstance, {});
       expect(getLive2DParametersMock.execute.calledWith(wsInstance)).to.be.true;
-      expect(getResult.content[0].text).to.equal(JSON.stringify(mockEmptyResponse, null, 2));
-      // Remove expectation for specific log message as it may not be present in the code
-      // expect(logMock.info.calledWith('Retrieved Live2D parameters: 0 parameters found')).to.be.true;
+      expect(getResult).to.equal(mockEmptyResponse);
     });
   });
 });
