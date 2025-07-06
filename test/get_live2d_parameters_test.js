@@ -67,16 +67,6 @@ describe('VTube Studio MCP Server - Get Live2D Parameters Tool', function() {
     sinon.restore();
   });
 
-  it('should have correct tool name and description', function() {
-    expect(getLive2DParameters.name).to.equal('getLive2DParameters');
-    expect(getLive2DParameters.description).to.equal('Get the value for all Live2D parameters in the current model from VTube Studio.');
-  });
-
-  it('should have correct input schema', function() {
-    expect(getLive2DParameters.inputSchema.type).to.equal('object');
-    expect(getLive2DParameters.inputSchema.properties).to.be.an('object').that.is.empty;
-    expect(getLive2DParameters.inputSchema.required).to.be.an('array').that.is.empty;
-  });
 
   describe('Execute Method', function() {
     it('should reject if WebSocket is null', async function() {

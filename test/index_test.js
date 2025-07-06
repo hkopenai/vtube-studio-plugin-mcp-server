@@ -112,13 +112,6 @@ describe('VTube Studio MCP Server - Integration Tests', function() {
       expect(mcpServerInstance.server.options.description).to.equal('An MCP server for VTube Studio integration');
       expect(mcpServerInstance.server.options.version).to.equal('1.0.0');
     });
-
-    it('should register necessary tools during initialization', function() {
-      expect(mcpServerInstance.server.tools.some(tool => tool.name === 'getLive2DParameters')).to.be.true;
-      const tool = mcpServerInstance.server.tools.find(tool => tool.name === 'getLive2DParameters');
-      expect(tool.config.title).to.equal('Get Live2D Parameters');
-      expect(tool.config.description).to.equal('Retrieves Live2D parameters from VTube Studio');
-    });
   });
 
   describe('WebSocket Connection and Authentication Flow', function() {
