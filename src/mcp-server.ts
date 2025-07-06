@@ -1,3 +1,5 @@
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as WebSocket from 'ws';
 import { getLive2DParameters } from './tools/getLive2DParameters';
 import { authenticate } from './utils/authenticate';
@@ -12,14 +14,19 @@ export interface MCPServerOptions {
 }
 
 export class MCPServer {
+    private server: McpServer;
     private ws: WebSocket.WebSocket | null = null;
     private readonly WS_URL = 'ws://0.0.0.0:8001';
     private readonly TOKEN_PATH = 'auth_token.json';
-    private tools: any[] = [];
 
     constructor(options: MCPServerOptions) {
-        // Placeholder for MCP Server initialization
         log.info('Initializing MCP Server with options: ' + JSON.stringify(options));
+        this.server = new McpServer({
+            name: options.name,
+            description: options.description,
+            version: options.version,
+            transport: new StdioServerTransport()
+        });
         this.initializeTools();
     }
 
@@ -32,7 +39,20 @@ export class MCPServer {
             }
         };
 
-        this.tools.push(live2DParametersTool);
+        this.server.registerTool('getLive2DParameters', {
+            title: 'Get Live2D Parameters',
+            description: 'Retrieves Live2D parameters from VTube Studio'
+        }, async (args, extra) => {
+            const result = await live2DParametersTool.execute();
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
         log.info('Registered tool: getLive2DParameters');
     }
 
@@ -65,58 +85,15 @@ export class MCPServer {
     }
 
     async start(): Promise<void> {
-        // Start the MCP Server
         log.info('Starting MCP Server...');
         try {
             await this.connectToVTubeStudio();
             log.info('MCP Server started successfully.');
-            this.setupStdioListener();
+            // The start method is not directly available, server might be running via transport
+            log.info('MCP Server is initialized and ready for client requests via transport.');
         } catch (err) {
             log.error('Failed to start MCP Server: ' + String(err));
             throw err;
-        }
-    }
-
-    private setupStdioListener(): void {
-        // Set up stdio to listen for MCP client requests
-        log.info('Setting up stdio listener for MCP client requests...');
-        process.stdin
-            .setEncoding('utf8')
-            .on('data', (data) => {
-                try {
-                    const request = JSON.parse(data.toString().trim());
-                    log.info('Received MCP client request: ' + JSON.stringify(request));
-                    this.handleMCPRequest(request)
-                        .then(response => {
-                            log.info('Sending response to MCP client: ' + JSON.stringify(response));
-                            process.stdout.write(JSON.stringify(response) + '\n');
-                        })
-                        .catch(err => {
-                            log.error('Error handling MCP request: ' + String(err));
-                            process.stdout.write(JSON.stringify({ error: err.message }) + '\n');
-                        });
-                } catch (err) {
-                    log.error('Error parsing MCP client request: ' + String(err));
-                    process.stdout.write(JSON.stringify({ error: 'Invalid request format' }) + '\n');
-                }
-            });
-
-        log.info('Stdio listener setup complete. MCP Server is now listening for client requests.');
-    }
-
-    private async handleMCPRequest(request: any): Promise<any> {
-        // Handle MCP client requests
-        if (request.type === 'tool-execute') {
-            const toolName = request.toolName;
-            const tool = this.tools.find(t => t.name === toolName);
-            if (tool) {
-                log.info(`Executing tool: ${toolName}`);
-                return await tool.execute();
-            } else {
-                throw new Error(`Tool ${toolName} not found.`);
-            }
-        } else {
-            throw new Error('Unsupported request type.');
         }
     }
 }

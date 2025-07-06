@@ -3,8 +3,7 @@ import { MCPServer } from './mcp-server';
 import * as fs from 'fs';
 import * as path from 'path';
 import log from 'log';
-
-log.prefix = '[VTS-MCP-SERVER] '; // Set prefix for logs
+require("log-node")();
 
 // VTube Studio WebSocket connection
 const connectToVTubeStudio = async (): Promise<void> => {
@@ -175,7 +174,8 @@ const startMCPServer = async (): Promise<void> => {
     }
 };
 
-// Start the MCP Server
+// Start the MCP Server with a debug log to ensure output
+log.info('Starting VTube Studio MCP Server with debug logs enabled...');
 startMCPServer().catch((err) => {
     log.error('Error starting the application: ' + String(err));
 });

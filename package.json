@@ -1,8 +1,8 @@
 {
-  "name": "vtube-studio-plugin",
+  "name": "vtube-studio-plugin-mcp-server",
   "version": "1.0.0",
   "description": "A plugin for VTube Studio",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "mocha test/*.js --exit",
     "build": "tsc",
@@ -16,7 +16,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.15.0",
     "log": "^6.3.2",
+    "log-node": "^8.0.3",
     "ws": "^8.13.0"
   },
   "devDependencies": {
