@@ -15,6 +15,12 @@ export const getLive2DParameters = {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
                 return;
             }
+            // Cast to any to access readyState for ws library compatibility
+            const wsAny = ws as any;
+            if (wsAny.readyState !== wsAny.OPEN) {
+                reject(new Error('WebSocket connection to VTube Studio is not open.'));
+                return;
+            }
 
             const requestId = 'live2d-params-request-1';
 

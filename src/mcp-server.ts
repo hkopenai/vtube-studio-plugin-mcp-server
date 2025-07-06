@@ -74,6 +74,13 @@ export class MCPServer {
             this.ws.addEventListener('close', (event: any) => {
                 log.info('Disconnected from VTube Studio. Code: ' + (event.code || 'N/A') + ', Reason: ' + (event.reason || 'N/A'));
                 this.ws = null;
+                // Attempt reconnection after a delay
+                setTimeout(() => {
+                    log.info('Attempting to reconnect to VTube Studio...');
+                    this.connectToVTubeStudio().catch(err => {
+                        log.error('Reconnection failed: ' + String(err));
+                    });
+                }, 3000);
             });
         });
     }
@@ -83,7 +90,6 @@ export class MCPServer {
         try {
             await this.connectToVTubeStudio();
             log.info('MCP Server started successfully.');
-            // The start method is not directly available, server might be running via transport
             await this.server.connect(this.transport);
             log.info('MCP Server is initialized and ready for client requests via transport.');
         } catch (err) {
