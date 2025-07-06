@@ -3,11 +3,26 @@ import log from 'log';
 
 export const getLive2DParameters = {
     name: 'getLive2DParameters',
-    description: 'Get the value for all Live2D parameters in the current model from VTube Studio.',
-    inputSchema: {
-        type: 'object',
-        properties: {},
-        required: []
+    title: 'Get Live2D Parameters',
+    description: 'Retrieves Live2D parameters from VTube Studio',
+    inputSchema: {},
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const result = await this.execute(ws);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
     },
     execute: async (ws: WebSocket | null) => {
         return new Promise((resolve, reject) => {

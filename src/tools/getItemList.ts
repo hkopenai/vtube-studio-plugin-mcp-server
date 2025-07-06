@@ -4,14 +4,40 @@ import { z } from "zod";
 
 export const getItemList = {
     name: 'getItemList',
-    description: 'Retrieves a list of available items or items currently in the scene from VTube Studio.',
-    inputSchema: z.object({
+    title: 'Get Item List',
+    description: 'Retrieves a list of available items or items currently in the scene from VTube Studio',
+    inputSchema: {
         includeAvailableSpots: z.boolean().optional().describe('Optional: If true, includes available spots for loading items.'),
         includeItemInstancesInScene: z.boolean().optional().describe('Optional: If true, includes items currently in the scene.'),
         includeAvailableItemFiles: z.boolean().optional().describe('Optional: If true, includes available item files on the user\'s PC. Note: This may cause a small lag due to disk I/O.'),
         onlyItemsWithInstanceID: z.string().optional().describe('Optional: Filter to only include items with this specific instance ID.'),
         onlyItemsWithFileName: z.string().optional().describe('Optional: Filter to only include items with this specific filename.')
-    }),
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const typedArgs = args as { 
+                includeAvailableSpots?: boolean; 
+                includeItemInstancesInScene?: boolean; 
+                includeAvailableItemFiles?: boolean; 
+                onlyItemsWithInstanceID?: string; 
+                onlyItemsWithFileName?: string 
+            };
+            const result = await this.execute(ws, typedArgs);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
+    },
     execute: async (ws: WebSocket | null, args: { 
         includeAvailableSpots?: boolean; 
         includeItemInstancesInScene?: boolean; 

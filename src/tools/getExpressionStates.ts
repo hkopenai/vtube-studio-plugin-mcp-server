@@ -3,7 +3,8 @@ import log from 'log';
 
 export const getExpressionStates = {
     name: 'getExpressionStates',
-    description: 'Get the current state (active or inactive) of expressions in the current model from VTube Studio.',
+    title: 'Get Expression States',
+    description: 'Retrieves the current state of expressions in the current model from VTube Studio',
     inputSchema: {
         type: 'object',
         properties: {
@@ -19,6 +20,25 @@ export const getExpressionStates = {
             }
         },
         required: []
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const typedArgs = args as { details?: boolean; expressionFile?: string };
+            const result = await this.execute(ws, typedArgs);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
     },
     execute: async (ws: WebSocket | null, args: { details?: boolean; expressionFile?: string } = {}) => {
         return new Promise((resolve, reject) => {

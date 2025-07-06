@@ -3,11 +3,30 @@ import log from 'log';
 
 export const getVTSFolders = {
     name: 'getVTSFolders',
-    description: 'Get the list of VTube Studio folders.',
+    title: 'Get VTS Folders',
+    description: 'Retrieves the list of VTube Studio folders',
     inputSchema: {
         type: 'object',
         properties: {},
         required: []
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const result = await this.execute(ws);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
     },
     execute: async (ws: WebSocket | null) => {
         return new Promise((resolve, reject) => {

@@ -4,12 +4,36 @@ import { z } from "zod";
 
 export const getPostProcessingList = {
     name: 'getPostProcessingList',
-    description: 'Retrieves the list of post-processing effects and their current state from VTube Studio.',
-    inputSchema: z.object({
+    title: 'Get Post-Processing List',
+    description: 'Retrieves the list of post-processing effects and their current state from VTube Studio',
+    inputSchema: {
         fillPostProcessingPresetsArray: z.boolean().optional().describe('Optional: If true, includes the list of post-processing presets. Set to false to avoid disk I/O lag.'),
         fillPostProcessingEffectsArray: z.boolean().optional().describe('Optional: If true, includes the full list of post-processing effects and their values. Set to false to reduce response size.'),
         effectIDFilter: z.array(z.string()).optional().describe('Optional: List of effect IDs to filter the response. Leave empty to include all effects.')
-    }),
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const typedArgs = args as { 
+                fillPostProcessingPresetsArray?: boolean; 
+                fillPostProcessingEffectsArray?: boolean; 
+                effectIDFilter?: string[] 
+            };
+            const result = await this.execute(ws, typedArgs);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
+    },
     execute: async (ws: WebSocket | null, args: { fillPostProcessingPresetsArray?: boolean; fillPostProcessingEffectsArray?: boolean; effectIDFilter?: string[] }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {

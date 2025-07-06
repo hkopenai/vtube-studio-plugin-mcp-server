@@ -4,11 +4,31 @@ import { z } from "zod";
 
 export const triggerHotkey = {
     name: 'triggerHotkey',
-    description: 'Trigger a hotkey in the current VTube Studio model.',
-    inputSchema: z.object({
+    title: 'Trigger Hotkey',
+    description: 'Triggers a hotkey in the current VTube Studio model',
+    inputSchema: {
         hotkeyID: z.string().describe('The ID or name of the hotkey to trigger.'),
         itemInstanceID: z.string().optional().describe('Optional: The instance ID of the Live2D item to trigger the hotkey for.'),
-    }),
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const typedArgs = args as { hotkeyID: string; itemInstanceID?: string };
+            const result = await this.execute(ws, typedArgs);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
+    },
     execute: async (ws: WebSocket | null, args: { hotkeyID: string; itemInstanceID?: string }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {

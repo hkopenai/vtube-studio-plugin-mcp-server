@@ -3,11 +3,30 @@ import log from 'log';
 
 export const getCurrentModel = {
     name: 'getCurrentModel',
-    description: 'Get information about the currently loaded model in VTube Studio.',
+    title: 'Get Current Model',
+    description: 'Retrieves information about the currently loaded model in VTube Studio',
     inputSchema: {
         type: 'object',
         properties: {},
         required: []
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const result = await this.execute(ws);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
     },
     execute: async (ws: WebSocket | null) => {
         return new Promise((resolve, reject) => {

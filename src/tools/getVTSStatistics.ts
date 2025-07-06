@@ -3,11 +3,30 @@ import log from 'log';
 
 export const getVTSStatistics = {
     name: 'getVTSStatistics',
-    description: 'Get current statistics from VTube Studio, such as uptime, framerate, and other app state information.',
+    title: 'Get VTS Statistics',
+    description: 'Retrieves current statistics from VTube Studio',
     inputSchema: {
         type: 'object',
         properties: {},
         required: []
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const result = await this.execute(ws);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
     },
     execute: async (ws: WebSocket | null) => {
         return new Promise((resolve, reject) => {

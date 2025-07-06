@@ -43,257 +43,32 @@ export class MCPServer {
             transport: this.transport
         });
         this.storeToken = options.storeToken !== false; // Default to true if not specified
-        this.initializeTools();
     }
 
     private initializeTools(): void {
-        // Register the tool for getting Live2D parameters, passing the WebSocket instance
-        this.server.registerTool('getLive2DParameters', {
-            title: 'Get Live2D Parameters',
-            description: 'Retrieves Live2D parameters from VTube Studio'
-        }, async (args, extra) => {
-            const result = await getLive2DParameters.execute(this.ws);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getLive2DParameters');
-        
-        // Register the tool for getting VTS statistics, passing the WebSocket instance
-        this.server.registerTool('getVTSStatistics', {
-            title: 'Get VTS Statistics',
-            description: 'Retrieves current statistics from VTube Studio'
-        }, async (args, extra) => {
-            const result = await getVTSStatistics.execute(this.ws);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getVTSStatistics');
-        
-        // Register the tool for getting VTS folders, passing the WebSocket instance
-        this.server.registerTool('getVTSFolders', {
-            title: 'Get VTS Folders',
-            description: 'Retrieves the list of VTube Studio folders'
-        }, async (args, extra) => {
-            const result = await getVTSFolders.execute(this.ws);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getVTSFolders');
-        
-        // Register the tool for getting the currently loaded model, passing the WebSocket instance
-        this.server.registerTool('getCurrentModel', {
-            title: 'Get Current Model',
-            description: 'Retrieves information about the currently loaded model in VTube Studio'
-        }, async (args, extra) => {
-            const result = await getCurrentModel.execute(this.ws);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getCurrentModel');
-        
-        // Register the tool for getting hotkeys, passing the WebSocket instance
-        this.server.registerTool('getHotkeys', {
-            title: 'Get Hotkeys',
-            description: 'Retrieves the list of hotkeys available in the current or specified VTS model from VTube Studio',
-            inputSchema: {
-                modelID: z.string().optional().describe('Optional: The ID of the model to get hotkeys for. If not provided, uses the current model.'),
-                onlyAvailable: z.boolean().optional().describe('Optional: If true, only returns hotkeys that are currently available to trigger.')
+        // Dynamically import and register all tools
+        const tools = [
+            require('./tools/getLive2DParameters').getLive2DParameters,
+            require('./tools/getVTSStatistics').getVTSStatistics,
+            require('./tools/getVTSFolders').getVTSFolders,
+            require('./tools/getCurrentModel').getCurrentModel,
+            require('./tools/getHotkeys').getHotkeys,
+            require('./tools/triggerHotkey').triggerHotkey,
+            require('./tools/getExpressionStates').getExpressionStates,
+            require('./tools/controlExpression').controlExpression,
+            require('./tools/getArtMeshList').getArtMeshList,
+            require('./tools/getItemList').getItemList,
+            require('./tools/getTrackingParameters').getTrackingParameters,
+            require('./tools/getPostProcessingList').getPostProcessingList
+        ];
+
+        tools.forEach(tool => {
+            if (typeof tool.register === 'function') {
+                tool.register(this.server, this.ws);
+            } else {
+                log.error(`Tool ${tool.name} does not have a register method. Skipping registration.`);
             }
-        }, async (args, extra) => {
-            const result = await getHotkeys.execute(this.ws, args);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
         });
-        log.info('Registered tool: getHotkeys');
-        
-        // Register the tool for triggering hotkeys, passing the WebSocket instance
-        this.server.registerTool('triggerHotkey', {
-            title: 'Trigger Hotkey',
-            description: 'Triggers a hotkey in the current VTube Studio model',
-            inputSchema: {
-                hotkeyID: z.string().describe('The ID or name of the hotkey to trigger.'),
-                itemInstanceID: z.string().optional().describe('Optional: The instance ID of the Live2D item to trigger the hotkey for.'),
-            },            
-        }, async (args: any, extra) => {
-            const typedArgs = args as { hotkeyID: string; itemInstanceID?: string };
-            const result = await triggerHotkey.execute(this.ws, typedArgs);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: triggerHotkey');
-        
-        // Register the tool for getting expression states, passing the WebSocket instance
-        this.server.registerTool('getExpressionStates', {
-            title: 'Get Expression States',
-            description: 'Retrieves the current state of expressions in the current model from VTube Studio',
-            inputSchema: {
-                details: z.boolean().optional().describe('Optional: If true, returns detailed information about each expression.'),
-                expressionFile: z.string().optional().describe('Optional: Specific expression file to get the state for. If not provided, returns states for all expressions.')
-            }
-        }, async (args: any, extra) => {
-            const typedArgs = args as { details?: boolean; expressionFile?: string };
-            const result = await getExpressionStates.execute(this.ws, typedArgs);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getExpressionStates');
-        
-        // Register the tool for controlling expressions, passing the WebSocket instance
-        this.server.registerTool('controlExpression', {
-            title: 'Control Expression',
-            description: 'Activates or deactivates an expression in the current model in VTube Studio',
-            inputSchema: {
-                expressionFile: z.string().describe('The file name of the expression to control.'),
-                active: z.boolean().describe('Whether to activate (true) or deactivate (false) the expression.'),
-                fadeTime: z.number().optional().describe('Optional: Duration in seconds for fading the expression in or out.')
-            }
-        }, async (args: any, extra) => {
-            const typedArgs = args as { expressionFile: string; active: boolean; fadeTime?: number };
-            const result = await controlExpression.execute(this.ws, typedArgs);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: controlExpression');
-        
-        // Register the tool for getting ArtMesh list, passing the WebSocket instance
-        this.server.registerTool('getArtMeshList', {
-            title: 'Get ArtMesh List',
-            description: 'Retrieves the list of ArtMeshes in the current model from VTube Studio'
-        }, async (args, extra) => {
-            const result = await getArtMeshList.execute(this.ws);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getArtMeshList');
-        
-        // Register the tool for getting item list, passing the WebSocket instance
-        this.server.registerTool('getItemList', {
-            title: 'Get Item List',
-            description: 'Retrieves a list of available items or items currently in the scene from VTube Studio',
-            inputSchema: {
-                includeAvailableSpots: z.boolean().optional().describe('Optional: If true, includes available spots for loading items.'),
-                includeItemInstancesInScene: z.boolean().optional().describe('Optional: If true, includes items currently in the scene.'),
-                includeAvailableItemFiles: z.boolean().optional().describe('Optional: If true, includes available item files on the user\'s PC. Note: This may cause a small lag due to disk I/O.'),
-                onlyItemsWithInstanceID: z.string().optional().describe('Optional: Filter to only include items with this specific instance ID.'),
-                onlyItemsWithFileName: z.string().optional().describe('Optional: Filter to only include items with this specific filename.')
-            }
-        }, async (args: any, extra) => {
-            const typedArgs = args as { 
-                includeAvailableSpots?: boolean; 
-                includeItemInstancesInScene?: boolean; 
-                includeAvailableItemFiles?: boolean; 
-                onlyItemsWithInstanceID?: string; 
-                onlyItemsWithFileName?: string 
-            };
-            const result = await getItemList.execute(this.ws, typedArgs);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getItemList');
-        
-        // Register the tool for getting tracking parameters, passing the WebSocket instance
-        this.server.registerTool('getTrackingParameters', {
-            title: 'Get Tracking Parameters',
-            description: 'Retrieves a list of available tracking parameters from VTube Studio, including both default and custom parameters'
-        }, async (args, extra) => {
-            const result = await getTrackingParameters.execute(this.ws, {});
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getTrackingParameters');
-        
-        // Register the tool for getting post-processing effects list, passing the WebSocket instance
-        this.server.registerTool('getPostProcessingList', {
-            title: 'Get Post-Processing List',
-            description: 'Retrieves the list of post-processing effects and their current state from VTube Studio',
-            inputSchema: {
-                fillPostProcessingPresetsArray: z.boolean().optional().describe('Optional: If true, includes the list of post-processing presets. Set to false to avoid disk I/O lag.'),
-                fillPostProcessingEffectsArray: z.boolean().optional().describe('Optional: If true, includes the full list of post-processing effects and their values. Set to false to reduce response size.'),
-                effectIDFilter: z.array(z.string()).optional().describe('Optional: List of effect IDs to filter the response. Leave empty to include all effects.')
-            }
-        }, async (args: any, extra) => {
-            const typedArgs = args as { 
-                fillPostProcessingPresetsArray?: boolean; 
-                fillPostProcessingEffectsArray?: boolean; 
-                effectIDFilter?: string[] 
-            };
-            const result = await getPostProcessingList.execute(this.ws, typedArgs);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify(result, null, 2)
-                    }
-                ]
-            };
-        });
-        log.info('Registered tool: getPostProcessingList');
     }
 
     private connectToVTubeStudio(): Promise<void> {
@@ -336,6 +111,7 @@ export class MCPServer {
         try {
             await this.connectToVTubeStudio();
             log.info('MCP Server started successfully.');
+            this.initializeTools();            
             await this.server.connect(this.transport);
             log.info('MCP Server is initialized and ready for client requests via transport.');
         } catch (err) {

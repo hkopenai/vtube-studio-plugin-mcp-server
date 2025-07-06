@@ -3,8 +3,31 @@ import log from 'log';
 
 export const getTrackingParameters = {
     name: 'getTrackingParameters',
-    description: 'Retrieves a list of available tracking parameters from VTube Studio, including both default and custom parameters.',
-    inputSchema: {},
+    title: 'Get Tracking Parameters',
+    description: 'Retrieves a list of available tracking parameters from VTube Studio, including both default and custom parameters',
+    inputSchema: {
+        type: 'object',
+        properties: {},
+        required: []
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const result = await this.execute(ws, {});
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
+    },
     execute: async (ws: WebSocket | null, args: Record<string, never>) => {
         return new Promise((resolve, reject) => {
             if (!ws) {

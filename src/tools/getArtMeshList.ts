@@ -3,11 +3,30 @@ import log from 'log';
 
 export const getArtMeshList = {
     name: 'getArtMeshList',
-    description: 'Get the list of ArtMeshes in the current model from VTube Studio.',
+    title: 'Get ArtMesh List',
+    description: 'Retrieves the list of ArtMeshes in the current model from VTube Studio',
     inputSchema: {
         type: 'object',
         properties: {},
         required: []
+    },
+    register: function(server: any, ws: WebSocket) {
+        server.registerTool(this.name, {
+            title: this.title,
+            description: this.description,
+            inputSchema: this.inputSchema
+        }, async (args: any, extra: any) => {
+            const result = await this.execute(ws);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(result, null, 2)
+                    }
+                ]
+            };
+        });
+        log.info('Registered tool: ' + this.name);
     },
     execute: async (ws: WebSocket | null) => {
         return new Promise((resolve, reject) => {
