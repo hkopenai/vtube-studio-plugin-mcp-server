@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   eventName: z.string().min(1, "Event name is required"),
   subscribe: z.boolean().default(true),
   config: z.object({
@@ -11,7 +11,7 @@ const inputSchema = z.object({
     key: z.string().optional(),
     value: z.any().optional(),
   }).optional(),
-});
+};
 
 export const subscribeToEvents = {
     name: 'subscribeToEvents',

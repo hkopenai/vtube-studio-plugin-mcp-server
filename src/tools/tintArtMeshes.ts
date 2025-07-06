@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   colorTint: z.object({
     colorR: z.number().min(0).max(255).default(255),
     colorG: z.number().min(0).max(255).default(255),
@@ -18,7 +18,7 @@ const inputSchema = z.object({
     tagExact: z.array(z.string()).default([]),
     tagContains: z.array(z.string()).default([]),
   }),
-});
+};
 
 export const tintArtMeshes = {
     name: 'tintArtMeshes',
@@ -43,7 +43,7 @@ export const tintArtMeshes = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { colorTint: { colorR: number; colorG: number; colorB: number; colorA: number; mixWithSceneLightingColor: number }; artMeshMatcher: { tintAll: boolean; artMeshNumber: number[]; nameExact: string[]; nameContains: string[]; tagExact: string[]; tagContains: string[] } }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -64,19 +64,19 @@ export const tintArtMeshes = {
                 messageType: 'ColorTintRequest',
                 data: {
                     colorTint: {
-                        colorR: input.colorTint.colorR,
-                        colorG: input.colorTint.colorG,
-                        colorB: input.colorTint.colorB,
-                        colorA: input.colorTint.colorA,
-                        mixWithSceneLightingColor: input.colorTint.mixWithSceneLightingColor,
+                        colorR: args.colorTint.colorR,
+                        colorG: args.colorTint.colorG,
+                        colorB: args.colorTint.colorB,
+                        colorA: args.colorTint.colorA,
+                        mixWithSceneLightingColor: args.colorTint.mixWithSceneLightingColor,
                     },
                     artMeshMatcher: {
-                        tintAll: input.artMeshMatcher.tintAll,
-                        artMeshNumber: input.artMeshMatcher.artMeshNumber,
-                        nameExact: input.artMeshMatcher.nameExact,
-                        nameContains: input.artMeshMatcher.nameContains,
-                        tagExact: input.artMeshMatcher.tagExact,
-                        tagContains: input.artMeshMatcher.tagContains,
+                        tintAll: args.artMeshMatcher.tintAll,
+                        artMeshNumber: args.artMeshMatcher.artMeshNumber,
+                        nameExact: args.artMeshMatcher.nameExact,
+                        nameContains: args.artMeshMatcher.nameContains,
+                        tagExact: args.artMeshMatcher.tagExact,
+                        tagContains: args.artMeshMatcher.tagContains,
                     },
                 },
             };
