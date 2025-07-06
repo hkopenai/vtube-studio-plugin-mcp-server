@@ -1,31 +1,15 @@
 import { WebSocket } from 'ws';
 import log from 'log';
+import { z } from "zod";
 
 export const controlExpression = {
     name: 'controlExpression',
     title: 'Control Expression',
     description: 'Activates or deactivates an expression in the current model in VTube Studio',
     inputSchema: {
-        type: 'object',
-        properties: {
-            expressionFile: {
-                type: 'string',
-                title: 'Expression File',
-                description: 'The filename of the expression to control (must end with .exp3.json).'
-            },
-            active: {
-                type: 'boolean',
-                title: 'Active',
-                description: 'Whether to activate (true) or deactivate (false) the expression.'
-            },
-            fadeTime: {
-                type: 'number',
-                title: 'Fade Time',
-                default: 0.25,
-                description: 'The fade time in seconds for the expression change (between 0 and 2).'
-            }
-        },
-        required: ['expressionFile', 'active']
+        expressionFile: z.string().describe('The filename of the expression to control (must end with .exp3.json).'),
+        active: z.boolean().describe('Whether to activate (true) or deactivate (false) the expression.'),
+        fadeTime: z.number().optional().default(0.25).describe('The fade time in seconds for the expression change (between 0 and 2).')
     },
     register: function(server: any, ws: WebSocket | null) {
         server.registerTool(this.name, {
