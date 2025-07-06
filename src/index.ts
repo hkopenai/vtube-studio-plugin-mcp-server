@@ -7,13 +7,6 @@ import * as path from 'path';
 const logToFileAndConsole = (message: string) => {
     console.log(`[VTS-MCP-SERVER] ${message}`);
     console.error(`[VTS-MCP-SERVER-ERROR-LOG] ${message}`);
-    const logPath = 'c:/Projects/waifu/vtube-plugin/server.log';
-    const timestamp = new Date().toISOString();
-    try {
-        fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`, { flag: 'a+' });
-    } catch (error) {
-        console.error('[VTS-MCP-SERVER-ERROR] Error writing to log file:', error);
-    }
 };
 
 // VTube Studio WebSocket connection
