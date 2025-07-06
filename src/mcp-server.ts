@@ -18,6 +18,7 @@ export class MCPServer {
     private ws: WebSocket.WebSocket | null = null;
     private readonly WS_URL = 'ws://0.0.0.0:8001';
     private readonly TOKEN_PATH = 'auth_token.json';
+    private transport = new StdioServerTransport();
 
     constructor(options: MCPServerOptions) {
         log.info('Initializing MCP Server with options: ' + JSON.stringify(options));
@@ -25,7 +26,7 @@ export class MCPServer {
             name: options.name,
             description: options.description,
             version: options.version,
-            transport: new StdioServerTransport()
+            transport: this.transport
         });
         this.initializeTools();
     }
@@ -90,6 +91,7 @@ export class MCPServer {
             await this.connectToVTubeStudio();
             log.info('MCP Server started successfully.');
             // The start method is not directly available, server might be running via transport
+            await this.server.connect(this.transport);
             log.info('MCP Server is initialized and ready for client requests via transport.');
         } catch (err) {
             log.error('Failed to start MCP Server: ' + String(err));
