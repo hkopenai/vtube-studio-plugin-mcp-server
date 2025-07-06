@@ -61,8 +61,8 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                     timestamp: new Date().toISOString()
                 };
                 try {
-                    fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
-                    console.log('Authentication token saved to auth_token.json');
+                fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
+                console.log('Authentication token saved to auth_token.json');
                 } catch (err) {
                     console.error('Error saving token:', err);
                 }
