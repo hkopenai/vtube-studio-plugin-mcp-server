@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({});
+const inputSchema = {};
 
 export const getCurrentModelPhysics = {
     name: 'getCurrentModelPhysics',

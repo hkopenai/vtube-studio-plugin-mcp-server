@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   pin: z.boolean().default(true),
   itemInstanceID: z.string().min(1, "Item instance ID is required"),
   angleRelativeTo: z.enum(['RelativeToWorld', 'RelativeToCurrentItemRotation', 'RelativeToModel', 'RelativeToPinPosition']).default('RelativeToModel'),
@@ -20,7 +20,7 @@ const inputSchema = z.object({
     vertexWeight2: z.number().default(0),
     vertexWeight3: z.number().default(0),
   }).optional(),
-});
+};
 
 export const pinItemToModel = {
     name: 'pinItemToModel',

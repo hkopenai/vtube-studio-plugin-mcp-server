@@ -2,13 +2,13 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   unloadAllInScene: z.boolean().default(false),
   unloadAllLoadedByThisPlugin: z.boolean().default(false),
   allowUnloadingItemsLoadedByUserOrOtherPlugins: z.boolean().default(true),
   instanceIDs: z.array(z.string()).default([]),
   fileNames: z.array(z.string()).default([]),
-});
+};
 
 export const removeItemFromScene = {
     name: 'removeItemFromScene',

@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   itemsToMove: z.array(
     z.object({
       itemInstanceID: z.string().min(1, "Item instance ID is required"),
@@ -18,7 +18,7 @@ const inputSchema = z.object({
       userCanStop: z.boolean().default(true),
     })
   ).max(64, "Maximum of 64 items can be moved at once"),
-});
+};
 
 export const moveItemInScene = {
     name: 'moveItemInScene',

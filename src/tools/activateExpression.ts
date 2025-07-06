@@ -2,11 +2,11 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   expressionFile: z.string().min(1, "Expression file name is required"),
   fadeTime: z.number().min(0).max(2).default(0.25),
   active: z.boolean().default(true),
-});
+};
 
 export const activateExpression = {
     name: 'activateExpression',

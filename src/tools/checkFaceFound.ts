@@ -6,7 +6,7 @@ export const checkFaceFound = {
     name: 'checkFaceFound',
     title: 'Check Face Found',
     description: 'Checks if a face is currently detected by the active tracker in VTube Studio',
-    inputSchema: z.object({}).describe('No input parameters required for checking if a face is detected'),
+    inputSchema: {},
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
             title: this.title,

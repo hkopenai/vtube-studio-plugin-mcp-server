@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   postProcessingOn: z.boolean().default(true),
   setPostProcessingPreset: z.boolean().default(false),
   setPostProcessingValues: z.boolean().default(false),
@@ -18,7 +18,7 @@ const inputSchema = z.object({
       configValue: z.string().min(1, "Config value is required"),
     })
   ).default([]),
-});
+};
 
 export const setPostProcessingEffects = {
     name: 'setPostProcessingEffects',

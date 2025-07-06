@@ -2,12 +2,12 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   textOverride: z.string().min(4).max(1024).optional(),
   helpOverride: z.string().min(4).max(1024).optional(),
   requestedArtMeshCount: z.number().default(0),
   activeArtMeshes: z.array(z.string()).default([]),
-});
+};
 
 export const selectArtMeshes = {
     name: 'selectArtMeshes',

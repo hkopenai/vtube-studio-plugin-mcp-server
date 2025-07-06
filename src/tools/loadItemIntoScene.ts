@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   fileName: z.string().min(1, "File name is required"),
   positionX: z.number().min(-1000).max(1000).default(0),
   positionY: z.number().min(-1000).max(1000).default(0.5),
@@ -20,7 +20,7 @@ const inputSchema = z.object({
   customDataAskUserFirst: z.boolean().default(true),
   customDataSkipAskingUserIfWhitelisted: z.boolean().default(true),
   customDataAskTimer: z.number().default(-1),
-});
+};
 
 export const loadItemIntoScene = {
     name: 'loadItemIntoScene',

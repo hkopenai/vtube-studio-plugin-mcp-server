@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   strengthOverrides: z.array(z.object({
     id: z.string().optional(),
     value: z.number().min(0).max(2).default(1.0),
@@ -15,7 +15,7 @@ const inputSchema = z.object({
     setBaseValue: z.boolean().default(false),
     overrideSeconds: z.number().min(0.5).max(5).default(2),
   })).default([]),
-});
+};
 
 export const setCurrentModelPhysics = {
     name: 'setCurrentModelPhysics',

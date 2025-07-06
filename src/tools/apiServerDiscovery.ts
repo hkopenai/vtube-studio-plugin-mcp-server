@@ -1,7 +1,7 @@
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({});
+const inputSchema = {};
 
 export const apiServerDiscovery = {
     name: 'apiServerDiscovery',

@@ -2,14 +2,14 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   setNewConfig: z.boolean().default(false),
   ndiActive: z.boolean().default(false),
   useNDI5: z.boolean().default(true),
   useCustomResolution: z.boolean().default(false),
   customWidthNDI: z.number().min(256).max(8192).default(-1),
   customHeightNDI: z.number().min(256).max(8192).default(-1),
-});
+};
 
 export const ndiConfig = {
     name: 'ndiConfig',

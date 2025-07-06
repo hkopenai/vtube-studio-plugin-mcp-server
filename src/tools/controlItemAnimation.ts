@@ -6,7 +6,7 @@ export const controlItemAnimation = {
     name: 'controlItemAnimation',
     title: 'Control Item Animation',
     description: 'Controls aspects of items in the scene such as brightness, opacity, and animation in VTube Studio',
-    inputSchema: z.object({
+    inputSchema: {
         itemInstanceID: z.string().describe('Unique ID of the item instance to control'),
         framerate: z.number().default(-1).describe('Framerate for animated items (0.1 to 120, -1 to ignore)'),
         frame: z.number().default(-1).describe('Specific frame to jump to for animated items (-1 to ignore)'),
@@ -16,7 +16,7 @@ export const controlItemAnimation = {
         autoStopFrames: z.array(z.number()).default([]).describe('Array of frame indices where animation should stop automatically'),
         setAnimationPlayState: z.boolean().default(false).describe('Whether to set the animation play state'),
         animationPlayState: z.boolean().default(false).describe('True to play animation, false to stop')
-    }).describe('Input parameters for controlling item animation in VTube Studio'),
+    },
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
             title: this.title,

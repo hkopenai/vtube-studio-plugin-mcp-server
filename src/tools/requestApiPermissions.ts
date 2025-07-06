@@ -2,9 +2,9 @@ import { WebSocket } from 'ws';
 import log from 'log';
 import { z } from 'zod';
 
-const inputSchema = z.object({
+const inputSchema = {
   permissionName: z.string().min(1, "Permission name is required"),
-});
+};
 
 export const requestApiPermissions = {
     name: 'requestApiPermissions',
