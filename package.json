@@ -16,12 +16,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "log": "^6.3.2",
     "ws": "^8.13.0"
   },
   "devDependencies": {
+    "@types/log": "^6.3.3",
+    "@types/node": "^18.15.11",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
-    "typescript": "^5.0.4",
-    "@types/node": "^18.15.11"
+    "typescript": "^5.0.4"
   }
 }

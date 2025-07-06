@@ -1,5 +1,6 @@
 import * as WebSocket from 'ws';
 import fs from 'fs';
+import log from 'log';
 
 export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -13,9 +14,9 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
             try {
                 const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
                 authToken = tokenData.authenticationToken;
-                console.log('Using stored authentication token');
+                log.info('Using stored authentication token');
             } catch (err) {
-                console.error('Error reading stored token:', err);
+                log.error('Error reading stored token: ' + String(err));
             }
         }
 
@@ -37,7 +38,7 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
 
             ws.send(JSON.stringify(authRequest));
         } else {
-            console.log('Requesting new authentication token');
+            log.info('Requesting new authentication token');
             const tokenRequest = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
@@ -53,7 +54,7 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
 
         const handleMessage = (event: any) => {
             const message = JSON.parse(event.data.toString());
-            console.log('Received:', message);
+            log.debug('Received: ' + JSON.stringify(message));
 
             if (message.messageType === 'AuthenticationTokenResponse') {
                 const tokenData = {
@@ -62,9 +63,9 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                 };
                 try {
                 fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
-                console.log('Authentication token saved to auth_token.json');
+                log.info('Authentication token saved to auth_token.json');
                 } catch (err) {
-                    console.error('Error saving token:', err);
+                    log.error('Error saving token: ' + String(err));
                 }
 
                 const authRequest = {
@@ -84,18 +85,18 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
             if (message.messageType === 'AuthenticationResponse') {
                 ws.removeEventListener('message', handleMessage);
                 if (message.data.authenticated) {
-                    console.log('Authentication successful');
+                    log.info('Authentication successful');
                     resolve();
                 } else {
-                    console.log('Authentication failed:', message.data.reason);
-                    console.log('Attempting reauthentication with a new token');
+                    log.error('Authentication failed: ' + message.data.reason);
+                    log.info('Attempting reauthentication with a new token');
                     // Delete the stored token to force a fresh request
                     if (fs.existsSync(tokenPath)) {
                         try {
                             fs.unlinkSync(tokenPath);
-                            console.log('Deleted stored token to request a fresh one.');
+                            log.info('Deleted stored token to request a fresh one.');
                         } catch (err) {
-                            console.error('Error deleting stored token:', err);
+                            log.error('Error deleting stored token: ' + String(err));
                         }
                     }
                     const tokenRequest = {

@@ -2,29 +2,9 @@ import { WebSocket } from 'ws';
 import { MCPServer } from './mcp-server';
 import * as fs from 'fs';
 import * as path from 'path';
+import log from 'log';
 
-// Define log levels (higher number means more severe logging)
-enum LogLevel {
-    DEBUG = 1,
-    INFO = 2,
-    ERROR = 3
-}
-
-// Current log level, default to ERROR to show only error logs
-let currentLogLevel: LogLevel = LogLevel.ERROR;
-
-// Define logging function with log level support
-const log = (level: LogLevel, message: string) => {
-    if (level >= currentLogLevel) {
-        if (level === LogLevel.ERROR) {
-            console.error(`[VTS-MCP-SERVER-ERROR] ${message}`);
-        } else if (level === LogLevel.INFO) {
-            console.log(`[VTS-MCP-SERVER-INFO] ${message}`);
-        } else if (level === LogLevel.DEBUG) {
-            console.log(`[VTS-MCP-SERVER-DEBUG] ${message}`);
-        }
-    }
-};
+log.prefix = '[VTS-MCP-SERVER] '; // Set prefix for logs
 
 // VTube Studio WebSocket connection
 const connectToVTubeStudio = async (): Promise<void> => {
@@ -33,14 +13,14 @@ const connectToVTubeStudio = async (): Promise<void> => {
     let authToken = '';
 
     ws.on('open', () => {
-        log(LogLevel.INFO, 'Connected to VTube Studio');
+        log.info('Connected to VTube Studio');
 
         // Check if token exists in storage
         if (fs.existsSync(tokenPath)) {
             try {
                 const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
                 authToken = tokenData.authenticationToken;
-                log(LogLevel.INFO, 'Using stored authentication token');
+                log.info('Using stored authentication token');
 
                 // Send authentication request with stored token
                 const authRequest = {
@@ -57,12 +37,12 @@ const connectToVTubeStudio = async (): Promise<void> => {
                 ws.send(JSON.stringify(authRequest));
                 return;
             } catch (err) {
-                log(LogLevel.ERROR, 'Error reading stored token: ' + String(err));
+                log.error('Error reading stored token: ' + String(err));
             }
         }
 
         // If no token or error, request a new one
-        log(LogLevel.INFO, 'Requesting new authentication token');
+        log.info('Requesting new authentication token');
         const tokenRequest = {
             apiName: 'VTubeStudioPublicAPI',
             apiVersion: '1.0',
@@ -78,7 +58,7 @@ const connectToVTubeStudio = async (): Promise<void> => {
 
     ws.on('message', (data) => {
         const message = JSON.parse(data.toString());
-        log(LogLevel.DEBUG, 'Received: ' + JSON.stringify(message, null, 2));
+        log.debug('Received: ' + JSON.stringify(message, null, 2));
 
         // Handle authentication token response
         if (message.messageType === 'AuthenticationTokenResponse') {
@@ -88,9 +68,9 @@ const connectToVTubeStudio = async (): Promise<void> => {
             };
             try {
                 fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
-                log(LogLevel.INFO, 'Authentication token saved to auth_token.json');
+                log.info('Authentication token saved to auth_token.json');
             } catch (err) {
-                log(LogLevel.ERROR, 'Error saving token: ' + String(err));
+                log.error('Error saving token: ' + String(err));
             }
 
             const authRequest = {
@@ -110,10 +90,10 @@ const connectToVTubeStudio = async (): Promise<void> => {
         // Handle authentication response
         if (message.messageType === 'AuthenticationResponse') {
             if (message.data.authenticated) {
-                log(LogLevel.INFO, 'Authentication successful');
+                log.info('Authentication successful');
             } else {
-                log(LogLevel.ERROR, 'Authentication failed: ' + message.data.reason);
-                log(LogLevel.INFO, 'Attempting reauthentication with a new token');
+                log.error('Authentication failed: ' + message.data.reason);
+                log.info('Attempting reauthentication with a new token');
                 // Request a new token if authentication fails
                 const tokenRequest = {
                     apiName: 'VTubeStudioPublicAPI',
@@ -128,18 +108,18 @@ const connectToVTubeStudio = async (): Promise<void> => {
                 ws.send(JSON.stringify(tokenRequest));
                 // Set a shorter timeout for reauthentication based on user feedback
                 setTimeout(() => {
-                    log(LogLevel.ERROR, 'Reauthentication timeout reached, assuming failure. Please ensure VTube Studio is running and accepting connections on ws://0.0.0.0:8001. Attempting to reconnect...');
+                    log.error('Reauthentication timeout reached, assuming failure. Please ensure VTube Studio is running and accepting connections on ws://0.0.0.0:8001. Attempting to reconnect...');
                     ws.close(); // Close the connection to prevent hanging
                     // Attempt to reconnect after a short delay
                     setTimeout(() => {
-                        log(LogLevel.INFO, 'Attempting to reconnect to VTube Studio...');
+                        log.info('Attempting to reconnect to VTube Studio...');
                         // Delete the stored token to force a fresh request
                         if (fs.existsSync(tokenPath)) {
                             try {
                                 fs.unlinkSync(tokenPath);
-                                log(LogLevel.INFO, 'Deleted stored token to request a fresh one.');
+                                log.info('Deleted stored token to request a fresh one.');
                             } catch (err) {
-                                log(LogLevel.ERROR, 'Error deleting stored token: ' + String(err));
+                                log.error('Error deleting stored token: ' + String(err));
                             }
                         }
                         connectToVTubeStudio();
@@ -150,14 +130,14 @@ const connectToVTubeStudio = async (): Promise<void> => {
     });
 
     ws.on('close', () => {
-        log(LogLevel.ERROR, 'Disconnected from VTube Studio');
+        log.error('Disconnected from VTube Studio');
     });
 
     ws.on('error', (err) => {
-        log(LogLevel.ERROR, 'WebSocket error: ' + String(err));
+        log.error('WebSocket error: ' + String(err));
     });
 
-    log(LogLevel.INFO, 'Connecting to VTube Studio...');
+    log.info('Connecting to VTube Studio...');
 };
 
 // MCP Server setup
@@ -171,9 +151,9 @@ const startMCPServer = async (): Promise<void> => {
     });
 
     try {
-        log(LogLevel.INFO, 'Initiating MCP Server start process...');
+        log.info('Initiating MCP Server start process...');
         await server.start();
-        log(LogLevel.INFO, 'MCP Server started successfully');
+        log.info('MCP Server started successfully');
         // Attempt to connect to VTube Studio once the server starts
         let retryCount = 0;
         const maxRetries = 3;
@@ -183,19 +163,19 @@ const startMCPServer = async (): Promise<void> => {
                 break; // Exit loop if connection succeeds
             } catch (error) {
                 retryCount++;
-                log(LogLevel.ERROR, `Connection attempt ${retryCount} failed: ${String(error)}. Retrying in 3 seconds...`);
+                log.error(`Connection attempt ${retryCount} failed: ${String(error)}. Retrying in 3 seconds...`);
                 await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds before retrying
                 if (retryCount === maxRetries) {
-                    log(LogLevel.ERROR, `Failed to connect to VTube Studio after ${maxRetries} attempts. Please ensure VTube Studio is running and accepting connections on ws://0.0.0.0:8001.`);
+                    log.error(`Failed to connect to VTube Studio after ${maxRetries} attempts. Please ensure VTube Studio is running and accepting connections on ws://0.0.0.0:8001.`);
                 }
             }
         }
     } catch (error) {
-        log(LogLevel.ERROR, 'Failed to start MCP Server: ' + String(error));
+        log.error('Failed to start MCP Server: ' + String(error));
     }
 };
 
 // Start the MCP Server
 startMCPServer().catch((err) => {
-    log(LogLevel.ERROR, 'Error starting the application: ' + String(err));
+    log.error('Error starting the application: ' + String(err));
 });

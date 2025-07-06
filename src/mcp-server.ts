@@ -1,6 +1,7 @@
 import * as WebSocket from 'ws';
 import { getLive2DParameters } from './tools/getLive2DParameters';
 import { authenticate } from './utils/authenticate';
+import log from 'log';
 
 export interface MCPServerOptions {
     name: string;
@@ -18,7 +19,7 @@ export class MCPServer {
 
     constructor(options: MCPServerOptions) {
         // Placeholder for MCP Server initialization
-        console.log('Initializing MCP Server with options:', options);
+        log.info('Initializing MCP Server with options: ' + JSON.stringify(options));
         this.initializeTools();
     }
 
@@ -32,32 +33,32 @@ export class MCPServer {
         };
 
         this.tools.push(live2DParametersTool);
-        console.log('Registered tool: getLive2DParameters');
+        log.info('Registered tool: getLive2DParameters');
     }
 
     private connectToVTubeStudio(): Promise<void> {
         return new Promise((resolve, reject) => {
-            console.log(`Attempting to connect to VTube Studio at ${this.WS_URL}`);
+            log.info(`Attempting to connect to VTube Studio at ${this.WS_URL}`);
             this.ws = new WebSocket.WebSocket(this.WS_URL);
 
             this.ws.addEventListener('open', () => {
-                console.log('Connected to VTube Studio successfully');
+                log.info('Connected to VTube Studio successfully');
                 authenticate(this.ws, this.TOKEN_PATH).then(() => {
-                    console.log('Authentication process completed');
+                    log.info('Authentication process completed');
                     resolve();
                 }).catch((err) => {
-                    console.error('Authentication failed:', err);
+                    log.error('Authentication failed: ' + String(err));
                     reject(err);
                 });
             });
 
             this.ws.addEventListener('error', (event) => {
-                console.error('WebSocket connection error:', event);
+                log.error('WebSocket connection error: ' + String(event));
                 reject(event);
             });
 
             this.ws.addEventListener('close', (event: any) => {
-                console.log('Disconnected from VTube Studio. Code:', event.code || 'N/A', 'Reason:', event.reason || 'N/A');
+                log.info('Disconnected from VTube Studio. Code: ' + (event.code || 'N/A') + ', Reason: ' + (event.reason || 'N/A'));
                 this.ws = null;
             });
         });
@@ -65,42 +66,42 @@ export class MCPServer {
 
     async start(): Promise<void> {
         // Start the MCP Server
-        console.log('Starting MCP Server...');
+        log.info('Starting MCP Server...');
         try {
             await this.connectToVTubeStudio();
-            console.log('MCP Server started successfully.');
+            log.info('MCP Server started successfully.');
             this.setupStdioListener();
         } catch (err) {
-            console.error('Failed to start MCP Server:', err);
+            log.error('Failed to start MCP Server: ' + String(err));
             throw err;
         }
     }
 
     private setupStdioListener(): void {
         // Set up stdio to listen for MCP client requests
-        console.log('Setting up stdio listener for MCP client requests...');
+        log.info('Setting up stdio listener for MCP client requests...');
         process.stdin
             .setEncoding('utf8')
             .on('data', (data) => {
                 try {
                     const request = JSON.parse(data.toString().trim());
-                    console.log('Received MCP client request:', request);
+                    log.info('Received MCP client request: ' + JSON.stringify(request));
                     this.handleMCPRequest(request)
                         .then(response => {
-                            console.log('Sending response to MCP client:', response);
+                            log.info('Sending response to MCP client: ' + JSON.stringify(response));
                             process.stdout.write(JSON.stringify(response) + '\n');
                         })
                         .catch(err => {
-                            console.error('Error handling MCP request:', err);
+                            log.error('Error handling MCP request: ' + String(err));
                             process.stdout.write(JSON.stringify({ error: err.message }) + '\n');
                         });
                 } catch (err) {
-                    console.error('Error parsing MCP client request:', err);
+                    log.error('Error parsing MCP client request: ' + String(err));
                     process.stdout.write(JSON.stringify({ error: 'Invalid request format' }) + '\n');
                 }
             });
 
-        console.log('Stdio listener setup complete. MCP Server is now listening for client requests.');
+        log.info('Stdio listener setup complete. MCP Server is now listening for client requests.');
     }
 
     private async handleMCPRequest(request: any): Promise<any> {
@@ -109,7 +110,7 @@ export class MCPServer {
             const toolName = request.toolName;
             const tool = this.tools.find(t => t.name === toolName);
             if (tool) {
-                console.log(`Executing tool: ${toolName}`);
+                log.info(`Executing tool: ${toolName}`);
                 return await tool.execute();
             } else {
                 throw new Error(`Tool ${toolName} not found.`);
