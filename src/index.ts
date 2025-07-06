@@ -124,13 +124,26 @@ const startMCPServer = async (): Promise<void> => {
         resources: []
     });
 
+const logToFileAndConsole = (message: string) => {
+        console.log(`[VTS-MCP-SERVER] ${message}`);
+        console.error(`[VTS-MCP-SERVER-ERROR-LOG] ${message}`);
+        const logPath = 'c:/Projects/waifu/vtube-plugin/server.log';
+        const timestamp = new Date().toISOString();
+        try {
+            fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`, { flag: 'a+' });
+        } catch (error) {
+            console.error('[VTS-MCP-SERVER-ERROR] Error writing to log file:', error);
+        }
+    };
+
     try {
+        logToFileAndConsole('Initiating MCP Server start process...');
         await server.start();
-        console.log('MCP Server started successfully');
+        logToFileAndConsole('MCP Server started successfully');
         // Attempt to connect to VTube Studio once the server starts
         await connectToVTubeStudio();
     } catch (error) {
-        console.error('Failed to start MCP Server:', error);
+        logToFileAndConsole('Failed to start MCP Server: ' + String(error));
     }
 };
 

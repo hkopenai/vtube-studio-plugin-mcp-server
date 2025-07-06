@@ -4,10 +4,9 @@
   "description": "A plugin for VTube Studio",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
     "test": "mocha test/*.js --exit",
     "build": "tsc",
-    "start-mcp": "node dist/mcp-server.js"
+    "start": "node dist/index.js"
   },
   "keywords": [
     "vtube",
