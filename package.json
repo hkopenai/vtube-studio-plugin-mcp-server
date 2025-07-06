@@ -1,0 +1,17 @@
+{
+  "name": "vtube-studio-plugin",
+  "version": "1.0.0",
+  "description": "A plugin to connect and authenticate with VTube Studio",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha test/*.js --exit"
+  },
+  "dependencies": {
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7"
+  }
+}
