@@ -1,22 +1,24 @@
 # Progress: VTuber Plugin
 
 ## What Works
-- **Memory Bank Setup**: The core documentation structure has been established with the creation of `projectbrief.md`, `productContext.md`, `activeContext.md`, `systemPatterns.md`, and `techContext.md`. This provides a solid foundation for project continuity.
-- **Project Structure**: The existing codebase in `src/` and `test/` directories indicates a functional starting point with defined modules for tools, utilities, and testing.
+- **Memory Bank Setup**: The core documentation structure has been established with the creation of all required files (`projectbrief.md`, `productContext.md`, `activeContext.md`, `systemPatterns.md`, `techContext.md`, and `progress.md`), providing a solid foundation for project continuity.
+- **Project Structure**: The existing codebase in `src/` and `test/` directories offers a functional starting point with defined modules for tools, utilities, and testing.
+- **Code Analysis Completed**: Detailed review of key files (`mcp-server.ts`, `getLive2DParameters.ts`, `authenticate.ts`) has been conducted, confirming the plugin's integration with VTube Studio for Live2D parameter control via WebSocket and MCP protocol.
 
 ## What's Left to Build
-- **Detailed Code Analysis**: A thorough review of the existing codebase to update memory bank files with specific insights into functionality, especially for Live2D integration and authentication mechanisms.
-- **Feature Development**: Implementation of additional tools or features for the VTuber Plugin, such as advanced Live2D parameter controls or integration with streaming platforms.
-- **Testing Enhancements**: Expansion of the test suite to cover all critical paths and edge cases, ensuring robustness as new features are added.
-- **User Documentation**: Creation of end-user guides and tutorials to support VTuber creators in using the plugin effectively.
+- **Feature Development**: Implementation of additional tools or features for the VTuber Plugin, such as advanced Live2D parameter controls or broader integration with streaming platforms beyond VTube Studio.
+    - Requesting current expression state list https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-current-expression-state-list
+    - Requesting activation or deactivation of expressions https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-activation-or-deactivation-of-expressions
+- **Testing Enhancements**: Expansion of the test suite to cover all critical paths and edge cases, ensuring robustness as new features are added. This includes reviewing existing tests in `test/` for coverage gaps.
+- **User Documentation**: Creation of end-user guides and tutorials to support VTuber creators in using the plugin effectively, based on the analyzed functionality.
 
 ## Current Status
-- **Initialization Phase**: The project is currently focused on setting up comprehensive documentation through the memory bank structure to ensure context retention across sessions.
-- **Documentation Complete**: All core memory bank files are in place, providing a clear overview of project goals, technical setup, and system design.
+- **Analysis Phase Complete**: The project has progressed from initialization to completing a detailed code analysis, with updated documentation in `activeContext.md` and `techContext.md` reflecting insights into VTube Studio integration and Live2D control.
+- **Documentation Updated**: Core memory bank files now include specific technical details from the codebase, enhancing the overview of project goals, technical setup, and system design.
 
 ## Known Issues
-- **Limited Code Insights**: Without a detailed review of the codebase, specific issues or bugs in the current implementation are not yet documented. This will be addressed in upcoming tasks.
-- **Incomplete User Feedback Loop**: Mechanisms to gather and incorporate user feedback for plugin improvements are not yet established.
+- **Untested Functionality**: While the code structure is understood, specific issues or bugs in the current implementation remain undocumented until a full test review is conducted.
+- **Incomplete User Feedback Loop**: Mechanisms to gather and incorporate user feedback for plugin improvements are not yet established, which could impact feature prioritization.
 
 ## Evolution of Project Decisions
 - **Initial Focus on Documentation**: The decision to prioritize memory bank setup was made to address the challenge of memory resets, ensuring that all future work can build on a well-documented foundation.
