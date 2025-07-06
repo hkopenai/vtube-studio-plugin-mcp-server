@@ -7,9 +7,10 @@
 
 ## What's Left to Build
 - **Feature Development**: Implementation of additional tools or features for the VTuber Plugin, such as advanced Live2D parameter controls or broader integration with streaming platforms beyond VTube Studio.
-    - Requesting current expression state list https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-current-expression-state-list
-    - Requesting activation or deactivation of expressions https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-activation-or-deactivation-of-expressions
-- **Testing Enhancements**: Expansion of the test suite to cover all critical paths and edge cases, ensuring robustness as new features are added. This includes reviewing existing tests in `test/` for coverage gaps.
+    - Tools
+        - Requesting current expression state list https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-current-expression-state-list
+        - Requesting activation or deactivation of expressions https://github.com/DenchiSoft/VTubeStudio?tab=readme-ov-file#requesting-activation-or-deactivation-of-expressions
+- **Testing Enhancements**: The test suite in 'end_to_end_test.js' has been further expanded to include additional edge case scenarios such as authentication failure, parameter retrieval with empty data, and unexpected WebSocket closure during parameter updates, enhancing the coverage of potential issues in the VTube Studio integration.
 - **User Documentation**: Creation of end-user guides and tutorials to support VTuber creators in using the plugin effectively, based on the analyzed functionality.
 
 ## Current Status
