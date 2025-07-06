@@ -19,6 +19,9 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
             }
         }
 
+        const pluginName = 'VTubeStudioMCPServer';
+        const pluginDeveloper = 'DeveloperName';
+
         if (authToken) {
             const authRequest = {
                 apiName: 'VTubeStudioPublicAPI',
@@ -26,8 +29,8 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                 requestID: 'auth-request-1',
                 messageType: 'AuthenticationRequest',
                 data: {
-                    pluginName: 'MyVTubePlugin',
-                    pluginDeveloper: 'DeveloperName',
+                    pluginName: pluginName,
+                    pluginDeveloper: pluginDeveloper,
                     authenticationToken: authToken
                 }
             };
@@ -41,8 +44,8 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                 requestID: 'token-request-1',
                 messageType: 'AuthenticationTokenRequest',
                 data: {
-                    pluginName: 'MyVTubePlugin',
-                    pluginDeveloper: 'DeveloperName'
+                    pluginName: pluginName,
+                    pluginDeveloper: pluginDeveloper
                 }
             };
             ws.send(JSON.stringify(tokenRequest));
@@ -57,8 +60,12 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                     authenticationToken: message.data.authenticationToken,
                     timestamp: new Date().toISOString()
                 };
-                fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
-                console.log('Authentication token saved to auth_token.json');
+                try {
+                    fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
+                    console.log('Authentication token saved to auth_token.json');
+                } catch (err) {
+                    console.error('Error saving token:', err);
+                }
 
                 const authRequest = {
                     apiName: 'VTubeStudioPublicAPI',
@@ -66,8 +73,8 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                     requestID: 'auth-request-1',
                     messageType: 'AuthenticationRequest',
                     data: {
-                        pluginName: 'MyVTubePlugin',
-                        pluginDeveloper: 'DeveloperName',
+                        pluginName: pluginName,
+                        pluginDeveloper: pluginDeveloper,
                         authenticationToken: message.data.authenticationToken
                     }
                 };
@@ -82,14 +89,23 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                 } else {
                     console.log('Authentication failed:', message.data.reason);
                     console.log('Attempting reauthentication with a new token');
+                    // Delete the stored token to force a fresh request
+                    if (fs.existsSync(tokenPath)) {
+                        try {
+                            fs.unlinkSync(tokenPath);
+                            console.log('Deleted stored token to request a fresh one.');
+                        } catch (err) {
+                            console.error('Error deleting stored token:', err);
+                        }
+                    }
                     const tokenRequest = {
                         apiName: 'VTubeStudioPublicAPI',
                         apiVersion: '1.0',
                         requestID: 'token-request-retry-1',
                         messageType: 'AuthenticationTokenRequest',
                         data: {
-                            pluginName: 'MyVTubePlugin',
-                            pluginDeveloper: 'DeveloperName'
+                            pluginName: pluginName,
+                            pluginDeveloper: pluginDeveloper
                         }
                     };
                     ws.send(JSON.stringify(tokenRequest));
@@ -101,6 +117,6 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
         setTimeout(() => {
             ws.removeEventListener('message', handleMessage);
             reject(new Error('Timeout waiting for authentication response.'));
-        }, 10000);
+        }, 3000); // Reduced to 3 seconds based on user feedback for quick response
     });
 }

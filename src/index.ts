@@ -3,6 +3,19 @@ import { MCPServer } from './mcp-server';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// Define logging function at the top to ensure it's available
+const logToFileAndConsole = (message: string) => {
+    console.log(`[VTS-MCP-SERVER] ${message}`);
+    console.error(`[VTS-MCP-SERVER-ERROR-LOG] ${message}`);
+    const logPath = 'c:/Projects/waifu/vtube-plugin/server.log';
+    const timestamp = new Date().toISOString();
+    try {
+        fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`, { flag: 'a+' });
+    } catch (error) {
+        console.error('[VTS-MCP-SERVER-ERROR] Error writing to log file:', error);
+    }
+};
+
 // VTube Studio WebSocket connection
 const connectToVTubeStudio = async (): Promise<void> => {
     const ws = new WebSocket('ws://0.0.0.0:8001');
@@ -10,14 +23,14 @@ const connectToVTubeStudio = async (): Promise<void> => {
     let authToken = '';
 
     ws.on('open', () => {
-        console.log('Connected to VTube Studio');
+        logToFileAndConsole('Connected to VTube Studio');
 
         // Check if token exists in storage
         if (fs.existsSync(tokenPath)) {
             try {
                 const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
                 authToken = tokenData.authenticationToken;
-                console.log('Using stored authentication token');
+                logToFileAndConsole('Using stored authentication token');
 
                 // Send authentication request with stored token
                 const authRequest = {
@@ -34,12 +47,12 @@ const connectToVTubeStudio = async (): Promise<void> => {
                 ws.send(JSON.stringify(authRequest));
                 return;
             } catch (err) {
-                console.error('Error reading stored token:', err);
+                logToFileAndConsole('Error reading stored token: ' + String(err));
             }
         }
 
         // If no token or error, request a new one
-        console.log('Requesting new authentication token');
+        logToFileAndConsole('Requesting new authentication token');
         const tokenRequest = {
             apiName: 'VTubeStudioPublicAPI',
             apiVersion: '1.0',
@@ -55,7 +68,7 @@ const connectToVTubeStudio = async (): Promise<void> => {
 
     ws.on('message', (data) => {
         const message = JSON.parse(data.toString());
-        console.log('Received:', message);
+        logToFileAndConsole('Received: ' + JSON.stringify(message, null, 2));
 
         // Handle authentication token response
         if (message.messageType === 'AuthenticationTokenResponse') {
@@ -63,8 +76,12 @@ const connectToVTubeStudio = async (): Promise<void> => {
                 authenticationToken: message.data.authenticationToken,
                 timestamp: new Date().toISOString()
             };
-            fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
-            console.log('Authentication token saved to auth_token.json');
+            try {
+                fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
+                logToFileAndConsole('Authentication token saved to auth_token.json');
+            } catch (err) {
+                logToFileAndConsole('Error saving token: ' + String(err));
+            }
 
             const authRequest = {
                 apiName: 'VTubeStudioPublicAPI',
@@ -83,10 +100,10 @@ const connectToVTubeStudio = async (): Promise<void> => {
         // Handle authentication response
         if (message.messageType === 'AuthenticationResponse') {
             if (message.data.authenticated) {
-                console.log('Authentication successful');
+                logToFileAndConsole('Authentication successful');
             } else {
-                console.log('Authentication failed:', message.data.reason);
-                console.log('Attempting reauthentication with a new token');
+                logToFileAndConsole('Authentication failed: ' + message.data.reason);
+                logToFileAndConsole('Attempting reauthentication with a new token');
                 // Request a new token if authentication fails
                 const tokenRequest = {
                     apiName: 'VTubeStudioPublicAPI',
@@ -99,6 +116,25 @@ const connectToVTubeStudio = async (): Promise<void> => {
                     }
                 };
                 ws.send(JSON.stringify(tokenRequest));
+                // Set a shorter timeout for reauthentication based on user feedback
+                setTimeout(() => {
+                    logToFileAndConsole('Reauthentication timeout reached, assuming failure. Please ensure VTube Studio is running and accepting connections on ws://0.0.0.0:8001. Attempting to reconnect...');
+                    ws.close(); // Close the connection to prevent hanging
+                    // Attempt to reconnect after a short delay
+                    setTimeout(() => {
+                        logToFileAndConsole('Attempting to reconnect to VTube Studio...');
+                        // Delete the stored token to force a fresh request
+                        if (fs.existsSync(tokenPath)) {
+                            try {
+                                fs.unlinkSync(tokenPath);
+                                logToFileAndConsole('Deleted stored token to request a fresh one.');
+                            } catch (err) {
+                                logToFileAndConsole('Error deleting stored token: ' + String(err));
+                            }
+                        }
+                        connectToVTubeStudio();
+                    }, 3000); // Wait 3 seconds before reconnecting
+                }, 5000); // 5 seconds timeout
             }
         }
     });
@@ -124,24 +160,26 @@ const startMCPServer = async (): Promise<void> => {
         resources: []
     });
 
-const logToFileAndConsole = (message: string) => {
-        console.log(`[VTS-MCP-SERVER] ${message}`);
-        console.error(`[VTS-MCP-SERVER-ERROR-LOG] ${message}`);
-        const logPath = 'c:/Projects/waifu/vtube-plugin/server.log';
-        const timestamp = new Date().toISOString();
-        try {
-            fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`, { flag: 'a+' });
-        } catch (error) {
-            console.error('[VTS-MCP-SERVER-ERROR] Error writing to log file:', error);
-        }
-    };
-
     try {
         logToFileAndConsole('Initiating MCP Server start process...');
         await server.start();
         logToFileAndConsole('MCP Server started successfully');
         // Attempt to connect to VTube Studio once the server starts
-        await connectToVTubeStudio();
+        let retryCount = 0;
+        const maxRetries = 3;
+        while (retryCount < maxRetries) {
+            try {
+                await connectToVTubeStudio();
+                break; // Exit loop if connection succeeds
+            } catch (error) {
+                retryCount++;
+                logToFileAndConsole(`Connection attempt ${retryCount} failed: ${String(error)}. Retrying in 3 seconds...`);
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds before retrying
+                if (retryCount === maxRetries) {
+                    logToFileAndConsole(`Failed to connect to VTube Studio after ${maxRetries} attempts. Please ensure VTube Studio is running and accepting connections on ws://0.0.0.0:8001.`);
+                }
+            }
+        }
     } catch (error) {
         logToFileAndConsole('Failed to start MCP Server: ' + String(error));
     }
