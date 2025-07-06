@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import log from 'log';
 
 export const getLive2DParameters = {
     name: 'getLive2DParameters',
@@ -15,19 +16,19 @@ export const getLive2DParameters = {
                 return;
             }
 
+            const requestId = 'live2d-params-request-1';
+
             const request = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
-                requestID: 'live2d-params-request-1',
-                messageType: 'Live2DParameterListRequest',
-                data: {}
+                requestID: requestId,
+                messageType: 'Live2DParameterListRequest'
             };
 
-            ws.send(JSON.stringify(request));
+            const messageHandler = (event: any) => {
+                let message = JSON.parse(event.data);
 
-            const messageHandler = (data: any) => {
-                const message = JSON.parse(data.toString());
-                if (message.requestID === 'live2d-params-request-1' && message.messageType === 'Live2DParameterListResponse') {
+                if (message.requestID === requestId && message.messageType === 'Live2DParameterListResponse') {
                     ws.removeEventListener('message', messageHandler);
                     resolve(message.data);
                 }
@@ -38,6 +39,8 @@ export const getLive2DParameters = {
                 ws.removeEventListener('message', messageHandler);
                 reject(new Error('Timeout waiting for Live2D parameters response.'));
             }, 5000);
+
+            ws.send(JSON.stringify(request));
         });
     }
 };
