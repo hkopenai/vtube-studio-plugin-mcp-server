@@ -1,17 +1,24 @@
 {
-  "name": "vtube-studio-plugin",
+  "name": "vtube-studio-mcp-server",
   "version": "1.0.0",
-  "description": "A plugin to connect and authenticate with VTube Studio",
-  "main": "index.js",
+  "description": "An MCP server for integrating with VTube Studio",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "mocha test/*.js --exit"
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "mocha -r ts-node/register test/*.ts --exit"
   },
   "dependencies": {
     "ws": "^8.13.0"
   },
   "devDependencies": {
+    "@types/node": "^20.4.5",
+    "typescript": "^5.0.4",
+    "ts-node": "^10.9.1",
     "mocha": "^10.2.0",
-    "chai": "^4.3.7"
+    "chai": "^4.3.7",
+    "@types/mocha": "^10.0.1",
+    "@types/chai": "^4.3.4"
   }
 }
