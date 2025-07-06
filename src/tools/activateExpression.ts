@@ -31,7 +31,7 @@ export const activateExpression = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { expressionFile: string; fadeTime: number; active: boolean }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -51,9 +51,9 @@ export const activateExpression = {
                 requestID: requestId,
                 messageType: 'ExpressionActivationRequest',
                 data: {
-                    expressionFile: input.expressionFile,
-                    fadeTime: input.fadeTime,
-                    active: input.active,
+                    expressionFile: args.expressionFile,
+                    fadeTime: args.fadeTime,
+                    active: args.active,
                 },
             };
 
@@ -70,7 +70,7 @@ export const activateExpression = {
                         if (response.messageType === 'ExpressionActivationResponse') {
                             resolve({
                                 success: true,
-                                message: `Expression ${input.expressionFile} has been ${input.active ? 'activated' : 'deactivated'} successfully.`,
+                                message: `Expression ${args.expressionFile} has been ${args.active ? 'activated' : 'deactivated'} successfully.`,
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

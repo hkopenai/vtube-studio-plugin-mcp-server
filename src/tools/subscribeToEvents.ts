@@ -36,7 +36,7 @@ export const subscribeToEvents = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { eventName: string; subscribe: boolean; config?: { key?: string; value?: any } }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -54,10 +54,10 @@ export const subscribeToEvents = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
                 requestID: requestId,
-                messageType: input.subscribe ? 'EventSubscriptionRequest' : 'EventUnsubscriptionRequest',
+                messageType: args.subscribe ? 'EventSubscriptionRequest' : 'EventUnsubscriptionRequest',
                 data: {
-                    eventName: input.eventName,
-                    config: input.config || {},
+                    eventName: args.eventName,
+                    config: args.config || {},
                 },
             };
 
@@ -71,12 +71,12 @@ export const subscribeToEvents = {
                     if (response.requestID === requestId) {
                         clearTimeout(timeout);
                         ws.removeEventListener('message', handler);
-                        if (response.messageType === (input.subscribe ? 'EventSubscriptionResponse' : 'EventUnsubscriptionResponse')) {
+                        if (response.messageType === (args.subscribe ? 'EventSubscriptionResponse' : 'EventUnsubscriptionResponse')) {
                             resolve({
                                 success: true,
-                                eventName: input.eventName,
-                                subscribed: input.subscribe,
-                                message: `Successfully ${input.subscribe ? 'subscribed to' : 'unsubscribed from'} event: ${input.eventName}.`,
+                                eventName: args.eventName,
+                                subscribed: args.subscribe,
+                                message: `Successfully ${args.subscribe ? 'subscribed to' : 'unsubscribed from'} event: ${args.eventName}.`,
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

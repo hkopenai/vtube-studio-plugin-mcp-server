@@ -40,7 +40,7 @@ export const setCurrentModelPhysics = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { strengthOverrides: Array<{ id?: string; value: number; setBaseValue: boolean; overrideSeconds: number }>; windOverrides: Array<{ id?: string; value: number; setBaseValue: boolean; overrideSeconds: number }> }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -60,13 +60,13 @@ export const setCurrentModelPhysics = {
                 requestID: requestId,
                 messageType: 'SetCurrentModelPhysicsRequest',
                 data: {
-                    strengthOverrides: input.strengthOverrides.map(override => ({
+                    strengthOverrides: args.strengthOverrides.map(override => ({
                         id: override.id || '',
                         value: override.value,
                         setBaseValue: override.setBaseValue,
                         overrideSeconds: override.overrideSeconds,
                     })),
-                    windOverrides: input.windOverrides.map(override => ({
+                    windOverrides: args.windOverrides.map(override => ({
                         id: override.id || '',
                         value: override.value,
                         setBaseValue: override.setBaseValue,

@@ -43,7 +43,7 @@ export const setPostProcessingEffects = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { postProcessingOn: boolean; setPostProcessingPreset: boolean; setPostProcessingValues: boolean; presetToSet?: string; postProcessingFadeTime: number; setAllOtherValuesToDefault: boolean; usingRestrictedEffects: boolean; randomizeAll: boolean; randomizeAllChaosLevel: number; postProcessingValues: Array<{ configID: string; configValue: string }> }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -63,16 +63,16 @@ export const setPostProcessingEffects = {
                 requestID: requestId,
                 messageType: 'PostProcessingUpdateRequest',
                 data: {
-                    postProcessingOn: input.postProcessingOn,
-                    setPostProcessingPreset: input.setPostProcessingPreset,
-                    setPostProcessingValues: input.setPostProcessingValues,
-                    presetToSet: input.presetToSet || '',
-                    postProcessingFadeTime: input.postProcessingFadeTime,
-                    setAllOtherValuesToDefault: input.setAllOtherValuesToDefault,
-                    usingRestrictedEffects: input.usingRestrictedEffects,
-                    randomizeAll: input.randomizeAll,
-                    randomizeAllChaosLevel: input.randomizeAllChaosLevel,
-                    postProcessingValues: input.postProcessingValues.map(value => ({
+                    postProcessingOn: args.postProcessingOn,
+                    setPostProcessingPreset: args.setPostProcessingPreset,
+                    setPostProcessingValues: args.setPostProcessingValues,
+                    presetToSet: args.presetToSet || '',
+                    postProcessingFadeTime: args.postProcessingFadeTime,
+                    setAllOtherValuesToDefault: args.setAllOtherValuesToDefault,
+                    usingRestrictedEffects: args.usingRestrictedEffects,
+                    randomizeAll: args.randomizeAll,
+                    randomizeAllChaosLevel: args.randomizeAllChaosLevel,
+                    postProcessingValues: args.postProcessingValues.map(value => ({
                         configID: value.configID,
                         configValue: value.configValue,
                     })),

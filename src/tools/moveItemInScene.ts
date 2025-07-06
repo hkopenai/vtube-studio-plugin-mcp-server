@@ -43,7 +43,7 @@ export const moveItemInScene = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { itemsToMove: Array<{ itemInstanceID: string; timeInSeconds: number; fadeMode: 'linear' | 'easeIn' | 'easeOut' | 'easeBoth' | 'overshoot' | 'zip'; positionX: number; positionY: number; size: number; rotation: number; order: number; setFlip: boolean; flip: boolean; userCanStop: boolean }> }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -63,7 +63,7 @@ export const moveItemInScene = {
                 requestID: requestId,
                 messageType: 'ItemMoveRequest',
                 data: {
-                    itemsToMove: input.itemsToMove.map(item => ({
+                    itemsToMove: args.itemsToMove.map(item => ({
                         itemInstanceID: item.itemInstanceID,
                         timeInSeconds: item.timeInSeconds,
                         fadeMode: item.fadeMode,

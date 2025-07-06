@@ -33,7 +33,7 @@ export const removeItemFromScene = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { unloadAllInScene: boolean; unloadAllLoadedByThisPlugin: boolean; allowUnloadingItemsLoadedByUserOrOtherPlugins: boolean; instanceIDs: string[]; fileNames: string[] }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -53,11 +53,11 @@ export const removeItemFromScene = {
                 requestID: requestId,
                 messageType: 'ItemUnloadRequest',
                 data: {
-                    unloadAllInScene: input.unloadAllInScene,
-                    unloadAllLoadedByThisPlugin: input.unloadAllLoadedByThisPlugin,
-                    allowUnloadingItemsLoadedByUserOrOtherPlugins: input.allowUnloadingItemsLoadedByUserOrOtherPlugins,
-                    instanceIDs: input.instanceIDs,
-                    fileNames: input.fileNames,
+                    unloadAllInScene: args.unloadAllInScene,
+                    unloadAllLoadedByThisPlugin: args.unloadAllLoadedByThisPlugin,
+                    allowUnloadingItemsLoadedByUserOrOtherPlugins: args.allowUnloadingItemsLoadedByUserOrOtherPlugins,
+                    instanceIDs: args.instanceIDs,
+                    fileNames: args.fileNames,
                 },
             };
 

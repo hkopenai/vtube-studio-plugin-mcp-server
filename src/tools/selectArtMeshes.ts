@@ -32,7 +32,7 @@ export const selectArtMeshes = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { textOverride?: string; helpOverride?: string; requestedArtMeshCount: number; activeArtMeshes: string[] }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -52,10 +52,10 @@ export const selectArtMeshes = {
                 requestID: requestId,
                 messageType: 'ArtMeshSelectionRequest',
                 data: {
-                    textOverride: input.textOverride || '',
-                    helpOverride: input.helpOverride || '',
-                    requestedArtMeshCount: input.requestedArtMeshCount,
-                    activeArtMeshes: input.activeArtMeshes,
+                    textOverride: args.textOverride || '',
+                    helpOverride: args.helpOverride || '',
+                    requestedArtMeshCount: args.requestedArtMeshCount,
+                    activeArtMeshes: args.activeArtMeshes,
                 },
             };
 

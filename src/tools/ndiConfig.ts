@@ -34,7 +34,7 @@ export const ndiConfig = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { setNewConfig: boolean; ndiActive: boolean; useNDI5: boolean; useCustomResolution: boolean; customWidthNDI: number; customHeightNDI: number }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -54,12 +54,12 @@ export const ndiConfig = {
                 requestID: requestId,
                 messageType: 'NDIConfigRequest',
                 data: {
-                    setNewConfig: input.setNewConfig,
-                    ndiActive: input.ndiActive,
-                    useNDI5: input.useNDI5,
-                    useCustomResolution: input.useCustomResolution,
-                    customWidthNDI: input.customWidthNDI,
-                    customHeightNDI: input.customHeightNDI,
+                    setNewConfig: args.setNewConfig,
+                    ndiActive: args.ndiActive,
+                    useNDI5: args.useNDI5,
+                    useCustomResolution: args.useCustomResolution,
+                    customWidthNDI: args.customWidthNDI,
+                    customHeightNDI: args.customHeightNDI,
                 },
             };
 
@@ -83,7 +83,7 @@ export const ndiConfig = {
                                     customWidthNDI: response.data.customWidthNDI,
                                     customHeightNDI: response.data.customHeightNDI,
                                 },
-                                message: input.setNewConfig ? 'NDI settings updated successfully.' : 'Current NDI settings retrieved successfully.',
+                                message: args.setNewConfig ? 'NDI settings updated successfully.' : 'Current NDI settings retrieved successfully.',
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

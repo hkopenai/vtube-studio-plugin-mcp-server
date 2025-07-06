@@ -29,7 +29,7 @@ export const requestApiPermissions = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { permissionName: string }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -49,7 +49,7 @@ export const requestApiPermissions = {
                 requestID: requestId,
                 messageType: 'PermissionRequest',
                 data: {
-                    permissionName: input.permissionName,
+                    permissionName: args.permissionName,
                 },
             };
 
@@ -66,9 +66,9 @@ export const requestApiPermissions = {
                         if (response.messageType === 'PermissionResponse') {
                             resolve({
                                 success: true,
-                                permissionName: input.permissionName,
+                                permissionName: args.permissionName,
                                 granted: response.data.granted,
-                                message: `Permission request for ${input.permissionName} was ${response.data.granted ? 'granted' : 'denied'}.`,
+                                message: `Permission request for ${args.permissionName} was ${response.data.granted ? 'granted' : 'denied'}.`,
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

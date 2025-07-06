@@ -45,7 +45,7 @@ export const loadItemIntoScene = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { fileName: string; positionX: number; positionY: number; size: number; rotation: number; fadeTime: number; order: number; failIfOrderTaken: boolean; smoothing: number; censored: boolean; flipped: boolean; locked: boolean; unloadWhenPluginDisconnects: boolean; customDataBase64?: string; customDataAskUserFirst: boolean; customDataSkipAskingUserIfWhitelisted: boolean; customDataAskTimer: number }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -65,23 +65,23 @@ export const loadItemIntoScene = {
                 requestID: requestId,
                 messageType: 'ItemLoadRequest',
                 data: {
-                    fileName: input.fileName,
-                    positionX: input.positionX,
-                    positionY: input.positionY,
-                    size: input.size,
-                    rotation: input.rotation,
-                    fadeTime: input.fadeTime,
-                    order: input.order,
-                    failIfOrderTaken: input.failIfOrderTaken,
-                    smoothing: input.smoothing,
-                    censored: input.censored,
-                    flipped: input.flipped,
-                    locked: input.locked,
-                    unloadWhenPluginDisconnects: input.unloadWhenPluginDisconnects,
-                    customDataBase64: input.customDataBase64 || '',
-                    customDataAskUserFirst: input.customDataAskUserFirst,
-                    customDataSkipAskingUserIfWhitelisted: input.customDataSkipAskingUserIfWhitelisted,
-                    customDataAskTimer: input.customDataAskTimer,
+                    fileName: args.fileName,
+                    positionX: args.positionX,
+                    positionY: args.positionY,
+                    size: args.size,
+                    rotation: args.rotation,
+                    fadeTime: args.fadeTime,
+                    order: args.order,
+                    failIfOrderTaken: args.failIfOrderTaken,
+                    smoothing: args.smoothing,
+                    censored: args.censored,
+                    flipped: args.flipped,
+                    locked: args.locked,
+                    unloadWhenPluginDisconnects: args.unloadWhenPluginDisconnects,
+                    customDataBase64: args.customDataBase64 || '',
+                    customDataAskUserFirst: args.customDataAskUserFirst,
+                    customDataSkipAskingUserIfWhitelisted: args.customDataSkipAskingUserIfWhitelisted,
+                    customDataAskTimer: args.customDataAskTimer,
                 },
             };
 

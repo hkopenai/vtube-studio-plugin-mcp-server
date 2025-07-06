@@ -26,7 +26,7 @@ export const apiServerDiscovery = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (input: z.infer<typeof inputSchema>) => {
+    execute: async (args: {}) => {
         return new Promise((resolve, reject) => {
             // Placeholder for UDP listening logic
             // This tool would require a UDP client setup which is not implemented here

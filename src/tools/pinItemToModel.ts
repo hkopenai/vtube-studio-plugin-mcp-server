@@ -45,7 +45,7 @@ export const pinItemToModel = {
         });
         log.info('Registered tool: ' + this.name);
     },
-    execute: async (ws: WebSocket | null, input: z.infer<typeof inputSchema>) => {
+    execute: async (ws: WebSocket | null, args: { pin: boolean; itemInstanceID: string; angleRelativeTo: 'RelativeToWorld' | 'RelativeToCurrentItemRotation' | 'RelativeToModel' | 'RelativeToPinPosition'; sizeRelativeTo: 'RelativeToWorld' | 'RelativeToCurrentItemSize'; vertexPinType: 'Provided' | 'Center' | 'Random'; pinInfo?: { modelID?: string; artMeshID?: string; angle: number; size: number; vertexID1: number; vertexID2: number; vertexID3: number; vertexWeight1: number; vertexWeight2: number; vertexWeight3: number } }) => {
         return new Promise((resolve, reject) => {
             if (!ws) {
                 reject(new Error('WebSocket connection to VTube Studio is not open.'));
@@ -65,22 +65,22 @@ export const pinItemToModel = {
                 requestID: requestId,
                 messageType: 'ItemPinRequest',
                 data: {
-                    pin: input.pin,
-                    itemInstanceID: input.itemInstanceID,
-                    angleRelativeTo: input.angleRelativeTo,
-                    sizeRelativeTo: input.sizeRelativeTo,
-                    vertexPinType: input.vertexPinType,
-                    pinInfo: input.pin ? {
-                        modelID: input.pinInfo?.modelID || '',
-                        artMeshID: input.pinInfo?.artMeshID || '',
-                        angle: input.pinInfo?.angle || 0,
-                        size: input.pinInfo?.size || 0.33,
-                        vertexID1: input.pinInfo?.vertexID1 || 0,
-                        vertexID2: input.pinInfo?.vertexID2 || 0,
-                        vertexID3: input.pinInfo?.vertexID3 || 0,
-                        vertexWeight1: input.pinInfo?.vertexWeight1 || 0,
-                        vertexWeight2: input.pinInfo?.vertexWeight2 || 0,
-                        vertexWeight3: input.pinInfo?.vertexWeight3 || 0,
+                    pin: args.pin,
+                    itemInstanceID: args.itemInstanceID,
+                    angleRelativeTo: args.angleRelativeTo,
+                    sizeRelativeTo: args.sizeRelativeTo,
+                    vertexPinType: args.vertexPinType,
+                    pinInfo: args.pin ? {
+                        modelID: args.pinInfo?.modelID || '',
+                        artMeshID: args.pinInfo?.artMeshID || '',
+                        angle: args.pinInfo?.angle || 0,
+                        size: args.pinInfo?.size || 0.33,
+                        vertexID1: args.pinInfo?.vertexID1 || 0,
+                        vertexID2: args.pinInfo?.vertexID2 || 0,
+                        vertexID3: args.pinInfo?.vertexID3 || 0,
+                        vertexWeight1: args.pinInfo?.vertexWeight1 || 0,
+                        vertexWeight2: args.pinInfo?.vertexWeight2 || 0,
+                        vertexWeight3: args.pinInfo?.vertexWeight3 || 0,
                     } : {},
                 },
             };
