@@ -3,25 +3,27 @@ import log from 'log';
 import { z } from 'zod';
 
 const inputSchema = z.object({
-  itemsToMove: z.array(z.object({
-    itemInstanceID: z.string(),
-    timeInSeconds: z.number().min(0).max(30).default(1),
-    fadeMode: z.enum(['linear', 'easeIn', 'easeOut', 'easeBoth', 'overshoot', 'zip']).default('easeOut'),
-    positionX: z.number().default(0.2),
-    positionY: z.number().default(-0.8),
-    size: z.number().default(0.6),
-    rotation: z.number().default(180),
-    order: z.number().int().default(-1000),
-    setFlip: z.boolean().default(true),
-    flip: z.boolean().default(false),
-    userCanStop: z.boolean().default(true),
-  })).max(64),
+  itemsToMove: z.array(
+    z.object({
+      itemInstanceID: z.string().min(1, "Item instance ID is required"),
+      timeInSeconds: z.number().min(0).max(30).default(0),
+      fadeMode: z.enum(['linear', 'easeIn', 'easeOut', 'easeBoth', 'overshoot', 'zip']).default('linear'),
+      positionX: z.number().default(-1000),
+      positionY: z.number().default(-1000),
+      size: z.number().default(-1000),
+      rotation: z.number().default(-1000),
+      order: z.number().default(-1000),
+      setFlip: z.boolean().default(false),
+      flip: z.boolean().default(false),
+      userCanStop: z.boolean().default(true),
+    })
+  ).max(64, "Maximum of 64 items can be moved at once"),
 });
 
 export const moveItemInScene = {
     name: 'moveItemInScene',
     title: 'Move Item in Scene',
-    description: 'Move items within the VTube Studio scene, adjusting position, size, rotation, and other properties.',
+    description: 'Move items within the VTube Studio scene with specified movement parameters.',
     inputSchema: inputSchema,
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
@@ -54,7 +56,7 @@ export const moveItemInScene = {
                 return;
             }
 
-            const requestId = `MoveItem-${Date.now()}`;
+            const requestId = `ItemMove-${Date.now()}`;
             const request = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
@@ -78,8 +80,8 @@ export const moveItemInScene = {
             };
 
             const timeout = setTimeout(() => {
-                reject(new Error('Request timed out after 10 seconds.'));
-            }, 10000);
+                reject(new Error('Request timed out after 30 seconds.'));
+            }, 30000);
 
             const handler = (event: any) => {
                 try {
@@ -91,7 +93,7 @@ export const moveItemInScene = {
                             resolve({
                                 success: true,
                                 movedItems: response.data.movedItems,
-                                message: `Successfully processed move request for ${response.data.movedItems.length} item(s).`,
+                                message: `Successfully processed movement for ${response.data.movedItems.length} items in the scene.`,
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

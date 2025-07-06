@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 const inputSchema = z.object({
   pin: z.boolean().default(true),
-  itemInstanceID: z.string(),
+  itemInstanceID: z.string().min(1, "Item instance ID is required"),
   angleRelativeTo: z.enum(['RelativeToWorld', 'RelativeToCurrentItemRotation', 'RelativeToModel', 'RelativeToPinPosition']).default('RelativeToModel'),
   sizeRelativeTo: z.enum(['RelativeToWorld', 'RelativeToCurrentItemSize']).default('RelativeToWorld'),
   vertexPinType: z.enum(['Provided', 'Center', 'Random']).default('Provided'),
@@ -12,20 +12,20 @@ const inputSchema = z.object({
     modelID: z.string().optional(),
     artMeshID: z.string().optional(),
     angle: z.number().default(0),
-    size: z.number().default(0.33),
-    vertexID1: z.number().int().optional(),
-    vertexID2: z.number().int().optional(),
-    vertexID3: z.number().int().optional(),
-    vertexWeight1: z.number().optional(),
-    vertexWeight2: z.number().optional(),
-    vertexWeight3: z.number().optional(),
+    size: z.number().min(0).max(1).default(0.33),
+    vertexID1: z.number().default(0),
+    vertexID2: z.number().default(0),
+    vertexID3: z.number().default(0),
+    vertexWeight1: z.number().default(0),
+    vertexWeight2: z.number().default(0),
+    vertexWeight3: z.number().default(0),
   }).optional(),
 });
 
 export const pinItemToModel = {
     name: 'pinItemToModel',
     title: 'Pin Item to Model',
-    description: 'Pin items to the currently loaded model in VTube Studio, or unpin them, with various positioning options.',
+    description: 'Pin or unpin an item to the currently loaded model in VTube Studio with specified pinning parameters.',
     inputSchema: inputSchema,
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
@@ -58,7 +58,7 @@ export const pinItemToModel = {
                 return;
             }
 
-            const requestId = `PinItem-${Date.now()}`;
+            const requestId = `ItemPin-${Date.now()}`;
             const request = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
@@ -70,7 +70,18 @@ export const pinItemToModel = {
                     angleRelativeTo: input.angleRelativeTo,
                     sizeRelativeTo: input.sizeRelativeTo,
                     vertexPinType: input.vertexPinType,
-                    pinInfo: input.pin ? input.pinInfo || {} : {},
+                    pinInfo: input.pin ? {
+                        modelID: input.pinInfo?.modelID || '',
+                        artMeshID: input.pinInfo?.artMeshID || '',
+                        angle: input.pinInfo?.angle || 0,
+                        size: input.pinInfo?.size || 0.33,
+                        vertexID1: input.pinInfo?.vertexID1 || 0,
+                        vertexID2: input.pinInfo?.vertexID2 || 0,
+                        vertexID3: input.pinInfo?.vertexID3 || 0,
+                        vertexWeight1: input.pinInfo?.vertexWeight1 || 0,
+                        vertexWeight2: input.pinInfo?.vertexWeight2 || 0,
+                        vertexWeight3: input.pinInfo?.vertexWeight3 || 0,
+                    } : {},
                 },
             };
 
@@ -90,7 +101,7 @@ export const pinItemToModel = {
                                 isPinned: response.data.isPinned,
                                 itemInstanceID: response.data.itemInstanceID,
                                 itemFileName: response.data.itemFileName,
-                                message: `Item ${response.data.itemFileName} with instance ID ${response.data.itemInstanceID} is ${response.data.isPinned ? 'pinned' : 'unpinned'}.`,
+                                message: `Item ${response.data.itemFileName} has been ${response.data.isPinned ? 'pinned' : 'unpinned'} successfully.`,
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

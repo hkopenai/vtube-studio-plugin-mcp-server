@@ -6,14 +6,14 @@ const inputSchema = z.object({
   unloadAllInScene: z.boolean().default(false),
   unloadAllLoadedByThisPlugin: z.boolean().default(false),
   allowUnloadingItemsLoadedByUserOrOtherPlugins: z.boolean().default(true),
-  instanceIDs: z.array(z.string()).optional(),
-  fileNames: z.array(z.string()).optional(),
+  instanceIDs: z.array(z.string()).default([]),
+  fileNames: z.array(z.string()).default([]),
 });
 
 export const removeItemFromScene = {
     name: 'removeItemFromScene',
     title: 'Remove Item from Scene',
-    description: 'Remove items from the VTube Studio scene, with options to unload all items, items loaded by this plugin, or specific items by instance IDs or filenames.',
+    description: 'Remove items from the VTube Studio scene based on specified criteria.',
     inputSchema: inputSchema,
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
@@ -46,7 +46,7 @@ export const removeItemFromScene = {
                 return;
             }
 
-            const requestId = `RemoveItem-${Date.now()}`;
+            const requestId = `ItemUnload-${Date.now()}`;
             const request = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
@@ -56,8 +56,8 @@ export const removeItemFromScene = {
                     unloadAllInScene: input.unloadAllInScene,
                     unloadAllLoadedByThisPlugin: input.unloadAllLoadedByThisPlugin,
                     allowUnloadingItemsLoadedByUserOrOtherPlugins: input.allowUnloadingItemsLoadedByUserOrOtherPlugins,
-                    instanceIDs: input.instanceIDs || [],
-                    fileNames: input.fileNames || [],
+                    instanceIDs: input.instanceIDs,
+                    fileNames: input.fileNames,
                 },
             };
 
@@ -75,7 +75,7 @@ export const removeItemFromScene = {
                             resolve({
                                 success: true,
                                 unloadedItems: response.data.unloadedItems,
-                                message: `Successfully unloaded ${response.data.unloadedItems.length} item(s) from the scene.`,
+                                message: `Successfully removed ${response.data.unloadedItems.length} items from the scene.`,
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

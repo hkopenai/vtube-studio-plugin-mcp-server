@@ -3,29 +3,15 @@ import log from 'log';
 import { z } from 'zod';
 
 const inputSchema = z.object({
-  fileName: z.string().min(1, "File name is required"),
-  positionX: z.number().min(-1000).max(1000).default(0),
-  positionY: z.number().min(-1000).max(1000).default(0.5),
-  size: z.number().min(0).max(1).default(0.33),
-  rotation: z.number().default(0),
-  fadeTime: z.number().min(0).max(2).default(0.5),
-  order: z.number().default(0),
-  failIfOrderTaken: z.boolean().default(false),
-  smoothing: z.number().min(0).max(1).default(0),
-  censored: z.boolean().default(false),
-  flipped: z.boolean().default(false),
-  locked: z.boolean().default(false),
-  unloadWhenPluginDisconnects: z.boolean().default(true),
-  customDataBase64: z.string().optional(),
-  customDataAskUserFirst: z.boolean().default(true),
-  customDataSkipAskingUserIfWhitelisted: z.boolean().default(true),
-  customDataAskTimer: z.number().default(-1),
+  expressionFile: z.string().min(1, "Expression file name is required"),
+  fadeTime: z.number().min(0).max(2).default(0.25),
+  active: z.boolean().default(true),
 });
 
-export const loadItemIntoScene = {
-    name: 'loadItemIntoScene',
-    title: 'Load Item into Scene',
-    description: 'Load an item into the VTube Studio scene with specified position, size, and other properties.',
+export const activateExpression = {
+    name: 'activateExpression',
+    title: 'Activate or Deactivate Expression',
+    description: 'Activate or deactivate a specific expression in VTube Studio for the currently loaded model.',
     inputSchema: inputSchema,
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
@@ -58,36 +44,22 @@ export const loadItemIntoScene = {
                 return;
             }
 
-            const requestId = `ItemLoad-${Date.now()}`;
+            const requestId = `ExpressionActivation-${Date.now()}`;
             const request = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
                 requestID: requestId,
-                messageType: 'ItemLoadRequest',
+                messageType: 'ExpressionActivationRequest',
                 data: {
-                    fileName: input.fileName,
-                    positionX: input.positionX,
-                    positionY: input.positionY,
-                    size: input.size,
-                    rotation: input.rotation,
+                    expressionFile: input.expressionFile,
                     fadeTime: input.fadeTime,
-                    order: input.order,
-                    failIfOrderTaken: input.failIfOrderTaken,
-                    smoothing: input.smoothing,
-                    censored: input.censored,
-                    flipped: input.flipped,
-                    locked: input.locked,
-                    unloadWhenPluginDisconnects: input.unloadWhenPluginDisconnects,
-                    customDataBase64: input.customDataBase64 || '',
-                    customDataAskUserFirst: input.customDataAskUserFirst,
-                    customDataSkipAskingUserIfWhitelisted: input.customDataSkipAskingUserIfWhitelisted,
-                    customDataAskTimer: input.customDataAskTimer,
+                    active: input.active,
                 },
             };
 
             const timeout = setTimeout(() => {
-                reject(new Error('Request timed out after 30 seconds.'));
-            }, 30000);
+                reject(new Error('Request timed out after 10 seconds.'));
+            }, 10000);
 
             const handler = (event: any) => {
                 try {
@@ -95,12 +67,10 @@ export const loadItemIntoScene = {
                     if (response.requestID === requestId) {
                         clearTimeout(timeout);
                         ws.removeEventListener('message', handler);
-                        if (response.messageType === 'ItemLoadResponse') {
+                        if (response.messageType === 'ExpressionActivationResponse') {
                             resolve({
                                 success: true,
-                                instanceID: response.data.instanceID,
-                                fileName: response.data.fileName,
-                                message: `Item ${response.data.fileName} loaded into scene with instance ID ${response.data.instanceID}.`,
+                                message: `Expression ${input.expressionFile} has been ${input.active ? 'activated' : 'deactivated'} successfully.`,
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

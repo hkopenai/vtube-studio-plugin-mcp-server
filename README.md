@@ -42,7 +42,42 @@ The server can be configured through the `MCPServerOptions` interface. Key optio
 - `storeToken`: A boolean flag to enable or disable token storage (default is `true`).
 
 ### Tools
-- **Get Live2D Parameters**: Retrieves Live2D parameters from VTube Studio. This tool can be accessed via MCP client requests after the server is started.
+- **Activate Expression**: Activates a specific expression for the current model in VTube Studio.
+- **Add Custom Parameter**: Adds a custom parameter to the current model for advanced control.
+- **API Server Discovery**: Listens for VTube Studio API state broadcasts on the local network via UDP (currently a placeholder for UDP functionality).
+- **Check Face Found**: Checks if a face is currently detected by VTube Studio's tracking system.
+- **Control Expression**: Controls the state or intensity of expressions for the current model.
+- **Control Item Animation**: Manages animation settings for items in the scene.
+- **Delete Custom Parameter**: Removes a custom parameter from the current model.
+- **Get Art Mesh List**: Retrieves a list of Art Meshes for the current model, useful for customization.
+- **Get Available Models**: Lists all available models that can be loaded into VTube Studio.
+- **Get Current Model**: Retrieves information about the currently loaded model in VTube Studio.
+- **Get Current Model Physics**: Gets the physics settings for the current model.
+- **Get Expression States**: Retrieves the current state of expressions for the model.
+- **Get Hotkeys**: Lists available hotkeys configured in VTube Studio.
+- **Get Item List**: Retrieves a list of items currently in the scene.
+- **Get Live2D Parameters**: Retrieves Live2D parameters from VTube Studio for dynamic control.
+- **Get Parameter Value**: Gets the current value of a specific parameter in VTube Studio.
+- **Get Post Processing List**: Retrieves a list of available post-processing effects.
+- **Get Scene Color Overlay Info**: Retrieves information about the scene color overlay, such as lighting settings.
+- **Get Tracking Parameters**: Gets parameters related to face or body tracking in VTube Studio.
+- **Get VTS Folders**: Retrieves folder paths or configurations used by VTube Studio.
+- **Get VTS Statistics**: Fetches usage statistics or performance data from VTube Studio.
+- **Inject Parameter Data**: Injects or updates parameter data into VTube Studio for custom control.
+- **Load Item Into Scene**: Loads a specific item into the current scene in VTube Studio.
+- **Load Model**: Loads a specified model into VTube Studio.
+- **Move Item In Scene**: Adjusts the position or properties of an item within the scene.
+- **Move Model**: Changes the position or rotation of the current model in the scene.
+- **NDI Config**: Manages NDI (Network Device Interface) configuration for streaming or output.
+- **Pin Item To Model**: Pins an item to a specific part of the model for synchronized movement.
+- **Remove Item From Scene**: Removes a specified item from the current scene.
+- **Request API Permissions**: Requests specific API permissions from the user for accessing certain functionalities.
+- **Select Art Meshes**: Selects specific Art Meshes for manipulation or customization.
+- **Set Current Model Physics**: Updates or overrides the physics settings for the current model.
+- **Set Post Processing Effects**: Applies or modifies post-processing effects in VTube Studio.
+- **Subscribe To Events**: Subscribes to specific events or updates from VTube Studio for real-time monitoring.
+- **Tint Art Meshes**: Applies color tinting to selected Art Meshes for visual customization.
+- **Trigger Hotkey**: Triggers a specific hotkey action configured in VTube Studio.
 
 ## Project Structure
 - `src/`: Contains the source code for the server.

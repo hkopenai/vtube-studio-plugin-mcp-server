@@ -5,23 +5,25 @@ import { z } from 'zod';
 const inputSchema = z.object({
   postProcessingOn: z.boolean().default(true),
   setPostProcessingPreset: z.boolean().default(false),
-  setPostProcessingValues: z.boolean().default(true),
+  setPostProcessingValues: z.boolean().default(false),
   presetToSet: z.string().optional(),
-  postProcessingFadeTime: z.number().min(0).max(2).default(1.3),
-  setAllOtherValuesToDefault: z.boolean().default(true),
+  postProcessingFadeTime: z.number().min(0).max(2).default(0),
+  setAllOtherValuesToDefault: z.boolean().default(false),
   usingRestrictedEffects: z.boolean().default(false),
   randomizeAll: z.boolean().default(false),
-  randomizeAllChaosLevel: z.number().min(0).max(1).default(0.0),
-  postProcessingValues: z.array(z.object({
-    configID: z.string(),
-    configValue: z.string(),
-  })).optional(),
+  randomizeAllChaosLevel: z.number().min(0).max(1).default(0.4),
+  postProcessingValues: z.array(
+    z.object({
+      configID: z.string().min(1, "Config ID is required"),
+      configValue: z.string().min(1, "Config value is required"),
+    })
+  ).default([]),
 });
 
 export const setPostProcessingEffects = {
     name: 'setPostProcessingEffects',
     title: 'Set Post-Processing Effects',
-    description: 'Control post-processing effects in VTube Studio, including turning effects on/off, setting presets, or configuring individual effect values.',
+    description: 'Control post-processing effects in VTube Studio, including turning effects on/off, loading presets, or setting individual config values.',
     inputSchema: inputSchema,
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
@@ -54,7 +56,7 @@ export const setPostProcessingEffects = {
                 return;
             }
 
-            const requestId = `PostProcessing-${Date.now()}`;
+            const requestId = `PostProcessingUpdate-${Date.now()}`;
             const request = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
@@ -70,7 +72,10 @@ export const setPostProcessingEffects = {
                     usingRestrictedEffects: input.usingRestrictedEffects,
                     randomizeAll: input.randomizeAll,
                     randomizeAllChaosLevel: input.randomizeAllChaosLevel,
-                    postProcessingValues: input.postProcessingValues || [],
+                    postProcessingValues: input.postProcessingValues.map(value => ({
+                        configID: value.configID,
+                        configValue: value.configValue,
+                    })),
                 },
             };
 
@@ -91,7 +96,7 @@ export const setPostProcessingEffects = {
                                 presetIsActive: response.data.presetIsActive,
                                 activePreset: response.data.activePreset,
                                 activeEffectCount: response.data.activeEffectCount,
-                                message: `Post-processing effects updated. Currently active: ${response.data.postProcessingActive}, Active effects: ${response.data.activeEffectCount}.`,
+                                message: 'Post-processing effects updated successfully.',
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));

@@ -3,29 +3,18 @@ import log from 'log';
 import { z } from 'zod';
 
 const inputSchema = z.object({
-  fileName: z.string().min(1, "File name is required"),
-  positionX: z.number().min(-1000).max(1000).default(0),
-  positionY: z.number().min(-1000).max(1000).default(0.5),
-  size: z.number().min(0).max(1).default(0.33),
-  rotation: z.number().default(0),
-  fadeTime: z.number().min(0).max(2).default(0.5),
-  order: z.number().default(0),
-  failIfOrderTaken: z.boolean().default(false),
-  smoothing: z.number().min(0).max(1).default(0),
-  censored: z.boolean().default(false),
-  flipped: z.boolean().default(false),
-  locked: z.boolean().default(false),
-  unloadWhenPluginDisconnects: z.boolean().default(true),
-  customDataBase64: z.string().optional(),
-  customDataAskUserFirst: z.boolean().default(true),
-  customDataSkipAskingUserIfWhitelisted: z.boolean().default(true),
-  customDataAskTimer: z.number().default(-1),
+  setNewConfig: z.boolean().default(false),
+  ndiActive: z.boolean().default(false),
+  useNDI5: z.boolean().default(true),
+  useCustomResolution: z.boolean().default(false),
+  customWidthNDI: z.number().min(256).max(8192).default(-1),
+  customHeightNDI: z.number().min(256).max(8192).default(-1),
 });
 
-export const loadItemIntoScene = {
-    name: 'loadItemIntoScene',
-    title: 'Load Item into Scene',
-    description: 'Load an item into the VTube Studio scene with specified position, size, and other properties.',
+export const ndiConfig = {
+    name: 'ndiConfig',
+    title: 'NDI Configuration',
+    description: 'Get or set NDI settings for VTube Studio streaming.',
     inputSchema: inputSchema,
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
@@ -58,36 +47,25 @@ export const loadItemIntoScene = {
                 return;
             }
 
-            const requestId = `ItemLoad-${Date.now()}`;
+            const requestId = `NDIConfig-${Date.now()}`;
             const request = {
                 apiName: 'VTubeStudioPublicAPI',
                 apiVersion: '1.0',
                 requestID: requestId,
-                messageType: 'ItemLoadRequest',
+                messageType: 'NDIConfigRequest',
                 data: {
-                    fileName: input.fileName,
-                    positionX: input.positionX,
-                    positionY: input.positionY,
-                    size: input.size,
-                    rotation: input.rotation,
-                    fadeTime: input.fadeTime,
-                    order: input.order,
-                    failIfOrderTaken: input.failIfOrderTaken,
-                    smoothing: input.smoothing,
-                    censored: input.censored,
-                    flipped: input.flipped,
-                    locked: input.locked,
-                    unloadWhenPluginDisconnects: input.unloadWhenPluginDisconnects,
-                    customDataBase64: input.customDataBase64 || '',
-                    customDataAskUserFirst: input.customDataAskUserFirst,
-                    customDataSkipAskingUserIfWhitelisted: input.customDataSkipAskingUserIfWhitelisted,
-                    customDataAskTimer: input.customDataAskTimer,
+                    setNewConfig: input.setNewConfig,
+                    ndiActive: input.ndiActive,
+                    useNDI5: input.useNDI5,
+                    useCustomResolution: input.useCustomResolution,
+                    customWidthNDI: input.customWidthNDI,
+                    customHeightNDI: input.customHeightNDI,
                 },
             };
 
             const timeout = setTimeout(() => {
-                reject(new Error('Request timed out after 30 seconds.'));
-            }, 30000);
+                reject(new Error('Request timed out after 10 seconds.'));
+            }, 10000);
 
             const handler = (event: any) => {
                 try {
@@ -95,12 +73,17 @@ export const loadItemIntoScene = {
                     if (response.requestID === requestId) {
                         clearTimeout(timeout);
                         ws.removeEventListener('message', handler);
-                        if (response.messageType === 'ItemLoadResponse') {
+                        if (response.messageType === 'NDIConfigResponse') {
                             resolve({
                                 success: true,
-                                instanceID: response.data.instanceID,
-                                fileName: response.data.fileName,
-                                message: `Item ${response.data.fileName} loaded into scene with instance ID ${response.data.instanceID}.`,
+                                ndiSettings: {
+                                    ndiActive: response.data.ndiActive,
+                                    useNDI5: response.data.useNDI5,
+                                    useCustomResolution: response.data.useCustomResolution,
+                                    customWidthNDI: response.data.customWidthNDI,
+                                    customHeightNDI: response.data.customHeightNDI,
+                                },
+                                message: input.setNewConfig ? 'NDI settings updated successfully.' : 'Current NDI settings retrieved successfully.',
                             });
                         } else if (response.messageType === 'APIError') {
                             reject(new Error(`API Error: ${response.data.errorID} - ${response.data.message}`));
