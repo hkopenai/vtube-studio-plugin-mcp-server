@@ -2,7 +2,7 @@ import * as WebSocket from 'ws';
 import fs from 'fs';
 import log from 'log';
 
-export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string): Promise<void> {
+export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string | null = 'auth_token.json'): Promise<void> {
     return new Promise((resolve, reject) => {
         if (!ws) {
             reject(new Error('WebSocket is not initialized.'));
@@ -10,7 +10,7 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
         }
 
         let authToken = '';
-        if (fs.existsSync(tokenPath)) {
+        if (tokenPath && fs.existsSync(tokenPath)) {
             try {
                 const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
                 authToken = tokenData.authenticationToken;
@@ -61,11 +61,13 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                     authenticationToken: message.data.authenticationToken,
                     timestamp: new Date().toISOString()
                 };
-                try {
-                fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
-                log.info('Authentication token saved to auth_token.json');
-                } catch (err) {
-                    log.error('Error saving token: ' + String(err));
+                if (tokenPath) {
+                    try {
+                        fs.writeFileSync(tokenPath, JSON.stringify(tokenData, null, 2));
+                        log.info('Authentication token saved to file');
+                    } catch (err) {
+                        log.error('Error saving token: ' + String(err));
+                    }
                 }
 
                 const authRequest = {
@@ -91,7 +93,7 @@ export function authenticate(ws: WebSocket.WebSocket | null, tokenPath: string):
                     log.error('Authentication failed: ' + message.data.reason);
                     log.info('Attempting reauthentication with a new token');
                     // Delete the stored token to force a fresh request
-                    if (fs.existsSync(tokenPath)) {
+                    if (tokenPath && fs.existsSync(tokenPath)) {
                         try {
                             fs.unlinkSync(tokenPath);
                             log.info('Deleted stored token to request a fresh one.');

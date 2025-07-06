@@ -11,6 +11,7 @@ export interface MCPServerOptions {
     version: string;
     tools: any[];
     resources: any[];
+    storeToken?: boolean;
 }
 
 export class MCPServer {
@@ -19,6 +20,7 @@ export class MCPServer {
     private readonly WS_URL = 'ws://0.0.0.0:8001';
     private readonly TOKEN_PATH = 'auth_token.json';
     private transport = new StdioServerTransport();
+    private storeToken: boolean;
 
     constructor(options: MCPServerOptions) {
         log.info('Initializing MCP Server with options: ' + JSON.stringify(options));
@@ -28,6 +30,7 @@ export class MCPServer {
             version: options.version,
             transport: this.transport
         });
+        this.storeToken = options.storeToken !== false; // Default to true if not specified
         this.initializeTools();
     }
 
@@ -57,7 +60,7 @@ export class MCPServer {
 
             this.ws.addEventListener('open', () => {
                 log.info('Connected to VTube Studio successfully');
-                authenticate(this.ws, this.TOKEN_PATH).then(() => {
+                authenticate(this.ws, this.storeToken ? this.TOKEN_PATH : null).then(() => {
                     log.info('Authentication process completed');
                     resolve();
                 }).catch((err) => {

@@ -123,6 +123,20 @@ describe('VTube Studio MCP Server - MCP Server', function() {
     expect(server.server.options.version).to.equal('2.0.0');
   });
 
+  it('should initialize MCP Server with storeToken option set to false', function() {
+    const options = {
+      name: 'test-server-no-token',
+      description: 'Test MCP Server without token storage',
+      version: '2.0.0',
+      tools: [],
+      resources: [],
+      storeToken: false
+    };
+    const server = new MCPServer(options);
+    expect(server.server.options.name).to.equal('test-server-no-token');
+    expect(server.storeToken).to.be.false;
+  });
+
   it('should log initialization with options', function() {
     const options = {
       name: 'vtube-studio-mcp-server',

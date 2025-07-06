@@ -1,0 +1,70 @@
+# VTube Studio MCP Server
+
+## Overview
+The VTube Studio MCP Server is a plugin designed to integrate VTube Studio with the Model Context Protocol (MCP). This server facilitates communication between VTube Studio and other MCP-compatible applications, allowing for the retrieval and manipulation of Live2D parameters directly from VTube Studio.
+
+## Features
+- **WebSocket Connection**: Establishes a WebSocket connection to VTube Studio for real-time communication.
+- **Authentication**: Handles authentication with VTube Studio, including token management for secure access.
+- **Live2D Parameters Retrieval**: Provides a tool to fetch Live2D parameters from VTube Studio, enabling dynamic control and interaction.
+- **Token Storage Option**: Offers the flexibility to start the server without storing the authentication token to a file, enhancing security in certain use cases.
+
+## Installation
+To install the VTube Studio MCP Server, follow these steps:
+1. Ensure you have Node.js installed on your system.
+2. Clone this repository or download the source code.
+3. Navigate to the project directory and run:
+   ```
+   npm install
+   ```
+4. Start the server with:
+   ```
+   npm start
+   ```
+
+## Usage
+### Starting the Server
+To start the server with default settings (token storage enabled):
+```
+npm start
+```
+
+To start the server without storing the authentication token:
+```
+node dist/index.js --no-store-token
+```
+
+### Configuration
+The server can be configured through the `MCPServerOptions` interface. Key options include:
+- `name`: The name of the MCP server.
+- `description`: A brief description of the server's purpose.
+- `version`: The version of the server.
+- `storeToken`: A boolean flag to enable or disable token storage (default is `true`).
+
+### Tools
+- **Get Live2D Parameters**: Retrieves Live2D parameters from VTube Studio. This tool can be accessed via MCP client requests after the server is started.
+
+## Project Structure
+- `src/`: Contains the source code for the server.
+  - `index.ts`: Entry point for the application.
+  - `mcp-server.ts`: Core MCP server implementation.
+  - `tools/`: Contains tools like `getLive2DParameters.ts` for specific functionalities.
+  - `utils/`: Utility functions, including `authenticate.ts` for handling authentication.
+- `test/`: Contains unit tests for various components of the server.
+- `dist/`: Compiled JavaScript output from TypeScript source.
+
+## Testing
+Run the unit tests with:
+```
+npm test
+```
+This will execute all tests in the `test/` directory using Mocha.
+
+## Contributing
+Contributions are welcome! Please submit issues or pull requests on the project's GitHub page for any bugs, features, or improvements.
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+For support or inquiries, please contact the project maintainers through GitHub issues.

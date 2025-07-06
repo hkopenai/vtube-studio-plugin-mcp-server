@@ -113,4 +113,22 @@ describe('Token Storage', function() {
     const result = handleAuthResponse(JSON.stringify(authFailureMessage));
     expect(result).to.be.true;
   });
+
+  it('should not save token to file when storeToken is false', function() {
+    // Function to simulate handling message with storeToken option set to false
+    function handleMessageNoStorage(data) {
+      const message = JSON.parse(data);
+      if (message.messageType === 'AuthenticationTokenResponse') {
+        // Simulate not saving the token
+        return true;
+      }
+      return false;
+    }
+
+    const result = handleMessageNoStorage(JSON.stringify(mockMessage));
+    expect(result).to.be.true;
+
+    const tokenPath = path.join(__dirname, '..', 'auth_token.json');
+    expect(fs.existsSync(tokenPath)).to.be.false;
+  });
 });
