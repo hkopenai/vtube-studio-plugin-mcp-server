@@ -5,11 +5,7 @@ export const getVTSFolders = {
     name: 'getVTSFolders',
     title: 'Get VTS Folders',
     description: 'Retrieves the list of VTube Studio folders',
-    inputSchema: {
-        type: 'object',
-        properties: {},
-        required: []
-    },
+    inputSchema: {},
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
             title: this.title,

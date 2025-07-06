@@ -1,23 +1,14 @@
 import { WebSocket } from 'ws';
 import log from 'log';
+import { z } from "zod";
 
 export const getHotkeys = {
     name: 'getHotkeys',
     title: 'Get Hotkeys',
     description: 'Retrieves the list of hotkeys available in the current or specified VTS model from VTube Studio',
     inputSchema: {
-        type: 'object',
-        properties: {
-            modelID: {
-                type: 'string',
-                description: 'Optional ID of the model to get hotkeys for. If not provided, the current model is used.'
-            },
-            live2DItemFileName: {
-                type: 'string',
-                description: 'Optional filename of the Live2D item to get hotkeys for. Ignored if modelID is provided.'
-            }
-        },
-        required: []
+        modelID: z.string().optional().describe('Optional ID of the model to get hotkeys for. If not provided, the current model is used.'),
+        live2DItemFileName: z.string().optional().describe('Optional filename of the Live2D item to get hotkeys for. Ignored if modelID is provided.')
     },
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {

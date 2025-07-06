@@ -5,11 +5,7 @@ export const getTrackingParameters = {
     name: 'getTrackingParameters',
     title: 'Get Tracking Parameters',
     description: 'Retrieves a list of available tracking parameters from VTube Studio, including both default and custom parameters',
-    inputSchema: {
-        type: 'object',
-        properties: {},
-        required: []
-    },
+    inputSchema: {},
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
             title: this.title,

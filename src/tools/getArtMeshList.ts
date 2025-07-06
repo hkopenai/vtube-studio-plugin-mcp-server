@@ -5,11 +5,7 @@ export const getArtMeshList = {
     name: 'getArtMeshList',
     title: 'Get ArtMesh List',
     description: 'Retrieves the list of ArtMeshes in the current model from VTube Studio',
-    inputSchema: {
-        type: 'object',
-        properties: {},
-        required: []
-    },
+    inputSchema: {},
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
             title: this.title,

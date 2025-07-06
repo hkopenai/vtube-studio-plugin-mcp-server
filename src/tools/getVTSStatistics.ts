@@ -5,11 +5,7 @@ export const getVTSStatistics = {
     name: 'getVTSStatistics',
     title: 'Get VTS Statistics',
     description: 'Retrieves current statistics from VTube Studio',
-    inputSchema: {
-        type: 'object',
-        properties: {},
-        required: []
-    },
+    inputSchema: {},
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
             title: this.title,

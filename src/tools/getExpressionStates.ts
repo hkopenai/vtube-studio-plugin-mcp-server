@@ -1,25 +1,14 @@
 import { WebSocket } from 'ws';
 import log from 'log';
+import { z } from "zod";
 
 export const getExpressionStates = {
     name: 'getExpressionStates',
     title: 'Get Expression States',
     description: 'Retrieves the current state of expressions in the current model from VTube Studio',
     inputSchema: {
-        type: 'object',
-        properties: {
-            details: {
-                type: 'boolean',
-                default: true,
-                description: 'Whether to include detailed information about expressions.'
-            },
-            expressionFile: {
-                type: 'string',
-                default: '',
-                description: 'Optional specific expression file to query. If empty, all expressions are returned.'
-            }
-        },
-        required: []
+        details: z.boolean().optional().default(true).describe('Whether to include detailed information about expressions.'),
+        expressionFile: z.string().optional().default('').describe('Optional specific expression file to query. If empty, all expressions are returned.')
     },
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {

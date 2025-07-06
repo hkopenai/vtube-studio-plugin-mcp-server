@@ -110,8 +110,8 @@ export class MCPServer {
         log.info('Starting MCP Server...');
         try {
             await this.connectToVTubeStudio();
+            this.initializeTools();
             log.info('MCP Server started successfully.');
-            this.initializeTools();            
             await this.server.connect(this.transport);
             log.info('MCP Server is initialized and ready for client requests via transport.');
         } catch (err) {

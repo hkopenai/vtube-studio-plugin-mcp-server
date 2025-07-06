@@ -5,11 +5,7 @@ export const getCurrentModel = {
     name: 'getCurrentModel',
     title: 'Get Current Model',
     description: 'Retrieves information about the currently loaded model in VTube Studio',
-    inputSchema: {
-        type: 'object',
-        properties: {},
-        required: []
-    },
+    inputSchema: {},
     register: function(server: any, ws: WebSocket) {
         server.registerTool(this.name, {
             title: this.title,
