@@ -11,10 +11,12 @@
   "keywords": [
     "vtube",
     "studio",
-    "plugin"
+    "plugin",
+    "mcp-server",
+    "mcp"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.15.0",
     "log": "^6.3.2",
