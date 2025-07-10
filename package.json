@@ -1,5 +1,5 @@
 {
-  "name": "vtube-studio-plugin-mcp-server",
+  "name": "@hkopenai/vtube-studio-plugin-mcp-server",
   "version": "1.0.0",
   "description": "A plugin for VTube Studio",
   "main": "dist/index.js",
